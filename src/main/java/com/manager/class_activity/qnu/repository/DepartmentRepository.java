@@ -19,4 +19,6 @@ public interface DepartmentRepository extends JpaRepository<Department, Integer>
 
     Optional<Department> findByIdAndIsDeleted(Integer id, boolean isDeleted);
 
+    Department findByNameAndIsDeleted(String name, boolean isDeleted);
+
 }

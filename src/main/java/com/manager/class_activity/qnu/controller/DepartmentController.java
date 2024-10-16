@@ -48,5 +48,12 @@ public class DepartmentController {
         return JsonResponse.success("Department saved successfully.");
     }
 
+    @DeleteMapping("/{departmentId}")
+    public JsonResponse<String> deleteDepartment(@PathVariable("departmentId") int departmentId) {
+        departmentService.deleteDepartment(departmentId);
+        return JsonResponse.success("Department deleted successfully.");
+    }
+
+
 }
 

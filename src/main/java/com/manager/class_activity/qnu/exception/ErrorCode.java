@@ -31,7 +31,8 @@ public enum ErrorCode {
     POST_IS_NOT_PUBLISH(1019, "This post is not publish", HttpStatus.BAD_REQUEST),
     TOKEN_INVALID(1020, "Token invalid", HttpStatus.UNAUTHORIZED),
     REJECTION_REASON_INVALID(1021, "The reason is not be blank, and max is 255 characters", HttpStatus.BAD_REQUEST),
-    DEPARTMENT_NOT_FOND(1021,"Department not fond" ,HttpStatus.NOT_FOUND);
+    DEPARTMENT_NOT_FOND(1022,"Department not fond" ,HttpStatus.NOT_FOUND),
+    DEPARTMENT_IS_EXISTED(1023,"Department name is existed" , HttpStatus.CONFLICT);
 
     private final int code;
     private final String message;

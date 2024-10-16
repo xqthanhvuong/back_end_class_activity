@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,9 +85,23 @@ public class DepartmentService {
     }
 
     public void saveDepartment(DepartmentRequest request) {
+        if(hadDepartmentName(request.getName())){
+            throw new BadException(ErrorCode.DEPARTMENT_IS_EXISTED);
+        }
         Department department = departmentMapper.toDepartment(request);
         departmentRepository.save(department);
 
+    }
+
+    public boolean hadDepartmentName(String name) {
+        return !ObjectUtils.isEmpty(departmentRepository.findByNameAndIsDeleted(name, false));
+    }
+
+    public void deleteDepartment(int id) {
+        Department department = departmentRepository.findByIdAndIsDeleted(id,false)
+                .orElseThrow(()-> new BadException(ErrorCode.DEPARTMENT_NOT_FOND));
+        department.setDeleted(true);
+        departmentRepository.save(department);
     }
 }
 
