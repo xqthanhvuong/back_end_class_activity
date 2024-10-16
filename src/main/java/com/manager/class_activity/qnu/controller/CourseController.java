@@ -38,7 +38,7 @@ public class CourseController {
 
     @PutMapping("/{courseId}")
     public JsonResponse<String> updateCourse(@PathVariable("courseId") int courseId,
-                                             @RequestBody CourseRequest request ) {
+                                             @RequestBody CourseRequest request) {
         courseService.updateCourse(courseId, request);
         return JsonResponse.success("Course updated successfully.");
     }
