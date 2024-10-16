@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,18 +31,53 @@ public class CourseService {
     CourseRepository courseRepository;
     CourseMapper courseMapper;
 
-    // Tải file CSV và lưu các Course
+
     public void saveCourses(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
+            // Kiểm tra xem các header có đúng không
+            List<String> expectedHeaders = Arrays.asList("name", "start_year", "end_year");
+            List<String> actualHeaders = csvParser.getHeaderNames();
+
+            if (!actualHeaders.containsAll(expectedHeaders)) {
+                throw new RuntimeException("Invalid CSV format: Missing required columns.");
+            }
+
             for (CSVRecord record : csvParser) {
+                // Kiểm tra từng giá trị
+                String name = record.get("name");
+                String startYear = record.get("start_year");
+                String endYear = record.get("end_year");
+
+                if (name == null || name.isEmpty()) {
+                    throw new RuntimeException("Invalid CSV format: 'name' cannot be empty.");
+                }
+                if (!isInteger(startYear) || !isInteger(endYear)) {
+                    throw new RuntimeException("Invalid CSV format: 'start_year' and 'end_year' must be integers.");
+                }
+
+                // Nếu hợp lệ thì lưu dữ liệu
                 Course course = new Course();
-                course.setName(record.get("name"));
-                course.setStartYear(Integer.parseInt(record.get("start_year")));
-                course.setEndYear(Integer.parseInt(record.get("end_year")));
+                course.setName(name);
+                course.setStartYear(Integer.parseInt(startYear));
+                course.setEndYear(Integer.parseInt(endYear));
                 courseRepository.save(course);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to process CSV file: " + e.getMessage());
+        }
+    }
+
+    // Hàm kiểm tra một chuỗi có phải số nguyên hay không
+    private boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 
