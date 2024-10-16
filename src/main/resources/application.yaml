@@ -24,6 +24,7 @@ logging:
     org.hibernate: INFO
     org.flywaydb: INFO
     org.springdoc: DEBUG
+    org.springframework.security: DEBUG
 
 springdoc:
   api-docs:
