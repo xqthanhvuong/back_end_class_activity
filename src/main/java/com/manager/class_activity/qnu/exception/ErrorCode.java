@@ -32,7 +32,8 @@ public enum ErrorCode {
     TOKEN_INVALID(1020, "Token invalid", HttpStatus.UNAUTHORIZED),
     REJECTION_REASON_INVALID(1021, "The reason is not be blank, and max is 255 characters", HttpStatus.BAD_REQUEST),
     DEPARTMENT_NOT_FOND(1022,"Department not fond" ,HttpStatus.NOT_FOUND),
-    DEPARTMENT_IS_EXISTED(1023,"Department name is existed" , HttpStatus.CONFLICT);
+    DEPARTMENT_IS_EXISTED(1023,"Department name is existed" , HttpStatus.CONFLICT),
+    COURSE_NOT_FOUND(1024,"Course not fond" ,HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

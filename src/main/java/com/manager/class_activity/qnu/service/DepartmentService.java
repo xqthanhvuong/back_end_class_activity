@@ -48,7 +48,7 @@ public class DepartmentService {
 
     public PagedResponse<DepartmentResponse> getDepartments(CustomPageRequest<?> request) {
         Page<Department> departments = departmentRepository.getDepartmentsByPaged(request.toPageable()
-                , getKeyWord(request));
+                , request.getKeyWord());
         List<DepartmentResponse> departmentResponses = new ArrayList<>();
         for (Department department : departments.getContent()) {
             departmentResponses.add(departmentMapper.toDepartmentResponse(department));
@@ -62,14 +62,6 @@ public class DepartmentService {
         );
     }
 
-    private <T> T getFilterValue(CustomPageRequest<?> request, Function<Filter, T> extractor) {
-        Filter filter = (Filter) request.getFilter();
-        return (filter != null) ? extractor.apply(filter) : null;
-    }
-
-    public String getKeyWord(CustomPageRequest<?> request) {
-        return getFilterValue(request, Filter::getKeyWord);
-    }
 
 
     public DepartmentResponse getDepartmentResponseById(int id) {
