@@ -28,6 +28,7 @@ public class DepartmentController {
         departmentService.saveDepartments(file);
         return JsonResponse.success("File uploaded and data saved successfully.");
     }
+
     @PostMapping("/get-departments")
     public JsonResponse<PagedResponse<DepartmentResponse>> searchDepartments(@RequestBody CustomPageRequest<Filter> request) {
         PagedResponse<DepartmentResponse> response = departmentService.getDepartments(request);
@@ -38,6 +39,7 @@ public class DepartmentController {
     public JsonResponse<DepartmentResponse> getDepartmentById(@PathVariable("departmentId") int departmentId) {
         return JsonResponse.success(departmentService.getDepartmentResponseById(departmentId));
     }
+
     @PutMapping("/{departmentId}")
     public JsonResponse<String> updateDepartment(@PathVariable("departmentId") int departmentId,
                                                  @RequestBody DepartmentRequest request){
@@ -61,7 +63,5 @@ public class DepartmentController {
     public JsonResponse<List<SummaryDepartmentResponse>> getDepartmentSummary() {
         return JsonResponse.success(departmentService.getSummaryDepartments());
     }
-
-
 }
 

@@ -36,7 +36,10 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(1024,"Course not fond" ,HttpStatus.NOT_FOUND),
     INVALID_FORMAT_CSV(1025, "Invalid CSV format.", HttpStatus.BAD_REQUEST),
     STAFF_NOT_FOND(1026,"Staff not fond" ,HttpStatus.NOT_FOUND),
-    COURSE_NAME_EXISTED(1027,"Course name is existed" , HttpStatus.CONFLICT);
+    COURSE_NAME_EXISTED(1027,"Course name is existed" , HttpStatus.CONFLICT),
+    STAFF_IS_EXISTED(1028,"Staff email is existed" , HttpStatus.CONFLICT),
+    LECTURER_NOT_FOUND(1029,"Lecturer not fond" ,HttpStatus.NOT_FOUND),
+    LECTURER_IS_EXISTED(1030,"Lecturer email is existed" , HttpStatus.CONFLICT);
 
     private final int code;
     private final String message;

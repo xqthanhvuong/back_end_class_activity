@@ -11,7 +11,6 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface StaffMapper {
     @Mappings({
-            @Mapping(source = "account.name", target = "accountName"),
             @Mapping(source = "department.name", target = "departmentName")
     })
     StaffResponse toStaffResponse(Staff staff);

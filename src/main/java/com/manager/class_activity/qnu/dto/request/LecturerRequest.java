@@ -1,6 +1,7 @@
-package com.manager.class_activity.qnu.dto.response;
+package com.manager.class_activity.qnu.dto.request;
 
 import com.manager.class_activity.qnu.entity.GenderEnum;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -16,14 +16,13 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StaffResponse {
-    int id;
+public class LecturerRequest {
+    @NotBlank(message = "Lecturer name cannot be blank")
     String name;
-    Date birthDate;
     GenderEnum gender;
+    String degree;
+    Date birthDate;
     String phoneNumber;
     String email;
-    String departmentName;
-    Timestamp createdAt;
-    Timestamp updatedAt;
+    int departmentId;
 }

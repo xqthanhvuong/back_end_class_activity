@@ -15,7 +15,9 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "and (:keyword is NULL or (lower(dp.name) like lower(concat('%', :keyword, '%'))) " +
             "or (str(dp.id) like lower(concat('%', :keyword, '%'))) " +
             "or (dp.account.username like lower(concat('%', :keyword, '%'))))")
-    Page<Staff> getStaffsByPaged(Pageable pageable, String keyWord);
+    Page<Staff> getStaffsByPaged(Pageable pageable, String keyword);
 
     Optional<Staff> findByIdAndIsDeleted(int staffId, boolean b);
+
+    Staff findByEmailAndIsDeleted(String email, boolean b);
 }

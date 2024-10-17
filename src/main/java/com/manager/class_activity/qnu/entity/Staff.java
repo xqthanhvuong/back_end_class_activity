@@ -3,6 +3,7 @@ package com.manager.class_activity.qnu.entity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "staff")
 public class Staff {
@@ -34,6 +36,9 @@ public class Staff {
 
     @Column(name = "phone_number", length = 15)
     String phoneNumber;
+
+    @Column(name = "email", length = 50)
+    String email;
 
     @ManyToOne
     @JoinColumn(name = "id_account")

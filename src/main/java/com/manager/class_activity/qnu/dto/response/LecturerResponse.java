@@ -16,13 +16,14 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StaffResponse {
+public class LecturerResponse {
     int id;
     String name;
-    Date birthDate;
     GenderEnum gender;
     String phoneNumber;
     String email;
+    Date birthDate;
+    String degree;
     String departmentName;
     Timestamp createdAt;
     Timestamp updatedAt;

@@ -23,6 +23,7 @@ public class StaffRequest {
     String name;
     Date birthDate;
     GenderEnum gender;
+    String email;
     String phoneNumber;
     int departmentId;
 }

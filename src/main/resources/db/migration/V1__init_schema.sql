@@ -115,6 +115,7 @@ CREATE TABLE `staff` (
                          `birth_date` DATE,
                          `gender` ENUM ('Male', 'Female', 'Other') NOT NULL,
                          `phone_number` VARCHAR(15),
+                         `email` VARCHAR(50),
                          `id_account` INT,
                          `department_id` INT,
                          `created_at` TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
