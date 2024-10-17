@@ -4,9 +4,7 @@ import com.manager.class_activity.qnu.dto.request.CourseRequest;
 import com.manager.class_activity.qnu.dto.response.CourseResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.dto.response.SummaryCourseResponse;
-import com.manager.class_activity.qnu.dto.response.SummaryDepartmentResponse;
 import com.manager.class_activity.qnu.entity.Course;
-import com.manager.class_activity.qnu.entity.Department;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
@@ -18,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,7 +57,9 @@ public class CourseService {
                 if (!isInteger(startYear) || !isInteger(endYear)) {
                     throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
                 }
-
+                if(hadCourseName(name)){
+                    continue;
+                }
                 // Nếu hợp lệ thì lưu dữ liệu
                 Course course = new Course();
                 course.setName(name);
@@ -105,28 +106,28 @@ public class CourseService {
 
     // Lấy Course theo ID
     public CourseResponse getCourseResponseById(int id) {
-        return courseMapper.toCourseResponse(courseRepository.findByIdAndIsDeleted(id, false)
-                .orElseThrow(() -> new BadException(ErrorCode.COURSE_NOT_FOUND)));
+        return courseMapper.toCourseResponse(getCourseById(id));
     }
 
     // Cập nhật Course
     public void updateCourse(int courseId, CourseRequest request) {
-        Course course = courseRepository.findByIdAndIsDeleted(courseId, false)
-                .orElseThrow(() -> new BadException(ErrorCode.COURSE_NOT_FOUND));
+        Course course = getCourseById(courseId);
         courseMapper.updateCourse(course, request);
         courseRepository.save(course);
     }
 
     // Tạo mới Course
     public void saveCourse(CourseRequest request) {
+        if(hadCourseName(request.getName())) {
+            throw new BadException(ErrorCode.COURSE_NAME_EXISTED);
+        }
         Course course = courseMapper.toCourse(request);
         courseRepository.save(course);
     }
 
     // Xóa Course
     public void deleteCourse(int id) {
-        Course course = courseRepository.findByIdAndIsDeleted(id, false)
-                .orElseThrow(() -> new BadException(ErrorCode.COURSE_NOT_FOUND));
+        Course course = getCourseById(id);
         course.setDeleted(true);
         courseRepository.save(course);
     }
@@ -138,5 +139,14 @@ public class CourseService {
             summaryCourseResponses.add(courseMapper.toSummaryCourse(course));
         }
         return summaryCourseResponses;
+    }
+
+    public Course getCourseById(int id){
+        return courseRepository.findByIdAndIsDeleted(id, false)
+                .orElseThrow(() -> new BadException(ErrorCode.COURSE_NOT_FOUND));
+    }
+
+    public boolean hadCourseName(String name){
+        return !ObjectUtils.isEmpty(courseRepository.findByNameAndIsDeleted(name, false));
     }
 }

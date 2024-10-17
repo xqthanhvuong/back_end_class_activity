@@ -21,4 +21,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     Page<Course> getCoursesByPaged(Pageable pageable, String keyword);
 
     List<Course> getAllByIsDeleted(boolean b);
+
+    Object findByNameAndIsDeleted(String name, boolean b);
 }

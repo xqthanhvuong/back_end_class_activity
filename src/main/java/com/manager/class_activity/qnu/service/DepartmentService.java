@@ -35,6 +35,9 @@ public class DepartmentService {
     public void saveDepartments(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
+                if(hadDepartmentName(record.get("name"))){
+                    continue;
+                }
                 Department department = new Department();
                 department.setName(record.get("name"));  // Sử dụng tên cột từ header
                 department.setUrlLogo(record.get("url_logo")); // Sử dụng tên cột từ header
@@ -72,13 +75,11 @@ public class DepartmentService {
 
 
     public DepartmentResponse getDepartmentResponseById(int id) {
-        return departmentMapper.toDepartmentResponse(departmentRepository.findByIdAndIsDeleted(id, false)
-                .orElseThrow(() -> new BadException(ErrorCode.DEPARTMENT_NOT_FOND)));
+        return departmentMapper.toDepartmentResponse(getDepartmentById(id));
     }
 
     public void updateDepartment(int departmentId, DepartmentRequest request) {
-        Department department = departmentRepository.findByIdAndIsDeleted(departmentId, false)
-                .orElseThrow(() -> new BadException(ErrorCode.DEPARTMENT_NOT_FOND));
+        Department department = getDepartmentById(departmentId);
         departmentMapper.updateDepartment(department, request);
         departmentRepository.save(department);
     }
@@ -97,10 +98,14 @@ public class DepartmentService {
     }
 
     public void deleteDepartment(int id) {
-        Department department = departmentRepository.findByIdAndIsDeleted(id,false)
-                .orElseThrow(()-> new BadException(ErrorCode.DEPARTMENT_NOT_FOND));
+        Department department = getDepartmentById(id);
         department.setDeleted(true);
         departmentRepository.save(department);
+    }
+
+    public Department getDepartmentById(int id) {
+        return departmentRepository.findByIdAndIsDeleted(id, false)
+                .orElseThrow(()-> new BadException(ErrorCode.DEPARTMENT_NOT_FOND));
     }
 }
 
