@@ -40,7 +40,7 @@ public class CourseService {
             List<String> actualHeaders = csvParser.getHeaderNames();
 
             if (!actualHeaders.containsAll(expectedHeaders)) {
-                throw new RuntimeException("Invalid CSV format: Missing required columns.");
+                throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
             }
 
             for (CSVRecord record : csvParser) {
@@ -50,10 +50,10 @@ public class CourseService {
                 String endYear = record.get("end_year");
 
                 if (name == null || name.isEmpty()) {
-                    throw new RuntimeException("Invalid CSV format: 'name' cannot be empty.");
+                    throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
                 }
                 if (!isInteger(startYear) || !isInteger(endYear)) {
-                    throw new RuntimeException("Invalid CSV format: 'start_year' and 'end_year' must be integers.");
+                    throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
                 }
 
                 // Nếu hợp lệ thì lưu dữ liệu
@@ -63,8 +63,10 @@ public class CourseService {
                 course.setEndYear(Integer.parseInt(endYear));
                 courseRepository.save(course);
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to process CSV file: " + e.getMessage());
+        } catch (BadException e) {
+            throw e;
+        } catch (Exception e){
+            throw new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
 

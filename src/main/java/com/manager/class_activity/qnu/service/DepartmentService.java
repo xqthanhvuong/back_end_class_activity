@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -42,7 +41,7 @@ public class DepartmentService {
                 departmentRepository.save(department);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to process CSV file: " + e.getMessage());
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
 
