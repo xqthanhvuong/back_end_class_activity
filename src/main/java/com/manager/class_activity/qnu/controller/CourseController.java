@@ -1,9 +1,7 @@
 package com.manager.class_activity.qnu.controller;
 
 import com.manager.class_activity.qnu.dto.request.CourseRequest;
-import com.manager.class_activity.qnu.dto.response.CourseResponse;
-import com.manager.class_activity.qnu.dto.response.JsonResponse;
-import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.*;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.CourseService;
 import lombok.AccessLevel;
@@ -11,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -53,5 +53,10 @@ public class CourseController {
     public JsonResponse<String> deleteCourse(@PathVariable("courseId") int courseId) {
         courseService.deleteCourse(courseId);
         return JsonResponse.success("Course deleted successfully.");
+    }
+
+    @GetMapping()
+    public JsonResponse<List<SummaryCourseResponse>> getDepartmentSummary() {
+        return JsonResponse.success(courseService.getSummaryCourses());
     }
 }

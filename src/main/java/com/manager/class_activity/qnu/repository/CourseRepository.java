@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "and (:keyword is NULL or lower(co.name) like lower(concat('%', :keyword, '%')) " +
             "or str(co.id) like lower(concat('%', :keyword, '%')))")
     Page<Course> getCoursesByPaged(Pageable pageable, String keyword);
+
+    List<Course> getAllByIsDeleted(boolean b);
 }

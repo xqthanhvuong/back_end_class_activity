@@ -5,6 +5,7 @@ import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.DepartmentResponse;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryDepartmentResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.DepartmentService;
 import lombok.AccessLevel;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -52,6 +55,11 @@ public class DepartmentController {
     public JsonResponse<String> deleteDepartment(@PathVariable("departmentId") int departmentId) {
         departmentService.deleteDepartment(departmentId);
         return JsonResponse.success("Department deleted successfully.");
+    }
+
+    @GetMapping()
+    public JsonResponse<List<SummaryDepartmentResponse>> getDepartmentSummary() {
+        return JsonResponse.success(departmentService.getSummaryDepartments());
     }
 
 

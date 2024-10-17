@@ -3,7 +3,10 @@ package com.manager.class_activity.qnu.service;
 import com.manager.class_activity.qnu.dto.request.CourseRequest;
 import com.manager.class_activity.qnu.dto.response.CourseResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryCourseResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryDepartmentResponse;
 import com.manager.class_activity.qnu.entity.Course;
+import com.manager.class_activity.qnu.entity.Department;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
@@ -126,5 +129,14 @@ public class CourseService {
                 .orElseThrow(() -> new BadException(ErrorCode.COURSE_NOT_FOUND));
         course.setDeleted(true);
         courseRepository.save(course);
+    }
+
+    public List<SummaryCourseResponse> getSummaryCourses(){
+        List<Course> courses = courseRepository.getAllByIsDeleted(false);
+        List<SummaryCourseResponse> summaryCourseResponses = new ArrayList<>();
+        for (Course course : courses) {
+            summaryCourseResponses.add(courseMapper.toSummaryCourse(course));
+        }
+        return summaryCourseResponses;
     }
 }

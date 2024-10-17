@@ -1,9 +1,9 @@
 package com.manager.class_activity.qnu.service;
 
 import com.manager.class_activity.qnu.dto.request.DepartmentRequest;
-import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.DepartmentResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryDepartmentResponse;
 import com.manager.class_activity.qnu.entity.Department;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
@@ -61,6 +61,14 @@ public class DepartmentService {
         );
     }
 
+    public List<SummaryDepartmentResponse> getSummaryDepartments(){
+        List<Department> departments = departmentRepository.getAllByIsDeleted(false);
+        List<SummaryDepartmentResponse> summaryDepartmentResponses = new ArrayList<>();
+        for (Department department : departments) {
+            summaryDepartmentResponses.add(departmentMapper.toSummaryDepartmentResponse(department));
+        }
+        return summaryDepartmentResponses;
+    }
 
 
     public DepartmentResponse getDepartmentResponseById(int id) {
