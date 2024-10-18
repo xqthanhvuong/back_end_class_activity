@@ -10,6 +10,7 @@ import com.manager.class_activity.qnu.entity.Lecturer;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
+import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.LecturerMapper;
 import com.manager.class_activity.qnu.repository.LecturerRepository;
 import lombok.AccessLevel;
@@ -46,7 +47,7 @@ public class LecturerService {
                         .name(record.get("name"))
                         .birthDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.get("birth_date")))
                         .phoneNumber(record.get("phone_number"))
-                        .gender(GenderEnum.valueOf(record.get("gender")))
+                        .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
                         .degree(record.get("degree"))
                         .build();
                 if (hadLecturerWithEmail(record.get("email"))) {
@@ -55,6 +56,7 @@ public class LecturerService {
                 saveLecturer(lecturer);
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }

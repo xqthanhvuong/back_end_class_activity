@@ -39,7 +39,9 @@ public enum ErrorCode {
     COURSE_NAME_EXISTED(1027,"Course name is existed" , HttpStatus.CONFLICT),
     STAFF_IS_EXISTED(1028,"Staff email is existed" , HttpStatus.CONFLICT),
     LECTURER_NOT_FOUND(1029,"Lecturer not fond" ,HttpStatus.NOT_FOUND),
-    LECTURER_IS_EXISTED(1030,"Lecturer email is existed" , HttpStatus.CONFLICT);
+    LECTURER_IS_EXISTED(1030,"Lecturer email is existed" , HttpStatus.CONFLICT),
+    CLASS_NOT_FOUND(1031,"Class not fond" ,HttpStatus.NOT_FOUND)
+    ;
 
     private final int code;
     private final String message;

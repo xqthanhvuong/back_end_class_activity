@@ -7,7 +7,7 @@ public class StringHelper {
         }
 
         // Loại bỏ khoảng trắng ở đầu và cuối chuỗi
-        input = input.trim();
+        input = input.trim().toLowerCase();
 
         // Nếu chuỗi rỗng sau khi loại bỏ khoảng trắng, trả về chuỗi rỗng
         if (input.isEmpty()) {

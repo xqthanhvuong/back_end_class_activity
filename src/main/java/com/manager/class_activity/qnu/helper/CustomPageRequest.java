@@ -1,7 +1,7 @@
 package com.manager.class_activity.qnu.helper;
 
 import com.manager.class_activity.qnu.constant.FilterConstant;
-import com.manager.class_activity.qnu.dto.request.Filter;
+import com.manager.class_activity.qnu.dto.request.AbstractFilter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,12 +39,21 @@ public class CustomPageRequest<T> {
         return org.springframework.data.domain.PageRequest.of(page, size, Sort.by(dir, sortBy));
     }
 
-    private <T> T getFilterValue(Function<Filter, T> extractor) {
-        Filter filter = (Filter) getFilter();
+    private <R> R getFilterValue(Function<AbstractFilter, R> extractor) {
+        AbstractFilter filter = (AbstractFilter) getFilter();
         return (filter != null) ? extractor.apply(filter) : null;
     }
 
     public String getKeyWord() {
-        return getFilterValue(Filter::getKeyWord);
+        return getFilterValue(AbstractFilter::getKeyWord);
     }
+
+    public Integer getDepartmentId(){
+        return getFilterValue(AbstractFilter::getDepartmentId);
+    }
+    public Integer getCourseId(){
+        return getFilterValue(AbstractFilter::getCourseId);
+    }
+
+
 }

@@ -1,0 +1,4 @@
+name,gender,degree,birth_date,phone_number,email,department_id
+John Doe,MALE,PhD,1985-12-15,123456789,john.doe@example.com,1
+Jane Smith,FEMALE,Masters,1985-12-15,987654321,jane.smith@example.com,2
+Alice Johnson,FEMALE,PhD,1985-12-15,555555555,alice.johnson@example.com,3
