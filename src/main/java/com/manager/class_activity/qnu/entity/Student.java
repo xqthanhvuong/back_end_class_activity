@@ -22,6 +22,9 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
+    @Column(length = 50)
+    String studentCode;
+
     @Column(nullable = false)
     String name;
 
