@@ -110,10 +110,10 @@ public class StaffService {
         Staff staff = staffMapper.toStaff(request);
         Account account = Account.builder()
                 .username(request.getEmail())
-                .password(request.getBirthDate().toString())
+                .password(StringHelper.createPassword(request.getBirthDate()))
                 .type(typeService.getTypeDepartment())
                 .build();
-        System.out.println(request.getBirthDate().toString());
+        System.out.println(account.getPassword());
         accountService.saveAccount(account);
         staff.setAccount(account);
         staff.setDepartment(department);

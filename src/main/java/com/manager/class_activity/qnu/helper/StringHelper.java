@@ -1,5 +1,7 @@
 package com.manager.class_activity.qnu.helper;
 
+import java.util.Date;
+
 public class StringHelper {
     public static String processString(String input) {
         if (input == null) {
@@ -28,6 +30,11 @@ public class StringHelper {
 
         // Trả về chuỗi đã xử lý, loại bỏ khoảng trắng ở cuối
         return processedString.toString().trim();
+    }
+
+    public static String createPassword(Date date){
+
+        return date.getDate() +Integer.toString(date.getMonth()+1)+ date.getYear();
     }
 
 }
