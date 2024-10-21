@@ -113,6 +113,7 @@ public class StaffService {
                 .password(request.getBirthDate().toString())
                 .type(typeService.getTypeDepartment())
                 .build();
+        System.out.println(request.getBirthDate().toString());
         accountService.saveAccount(account);
         staff.setAccount(account);
         staff.setDepartment(department);

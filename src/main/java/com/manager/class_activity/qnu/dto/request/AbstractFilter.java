@@ -18,4 +18,8 @@ public abstract class AbstractFilter {
     public Integer getCourseId() {
         return null;  // Trả về null mặc định cho lớp không có courseId
     }
+
+    public Integer getClassId(){
+        return null;
+    }
 }

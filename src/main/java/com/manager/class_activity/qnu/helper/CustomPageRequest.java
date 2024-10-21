@@ -54,6 +54,9 @@ public class CustomPageRequest<T> {
     public Integer getCourseId(){
         return getFilterValue(AbstractFilter::getCourseId);
     }
+    public Integer getClassId(){
+        return getFilterValue(AbstractFilter::getClassId);
+    }
 
 
 }

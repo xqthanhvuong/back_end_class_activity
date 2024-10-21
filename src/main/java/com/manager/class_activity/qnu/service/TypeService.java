@@ -18,4 +18,8 @@ public class TypeService {
         return typeRepository.findById(2)
                 .orElseThrow(()->new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION));
     }
+    public Type getTypeStudent(){
+        return typeRepository.findById(3)
+                .orElseThrow(()->new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION));
+    }
 }
