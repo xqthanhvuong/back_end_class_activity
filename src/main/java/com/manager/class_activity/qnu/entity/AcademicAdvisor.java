@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -31,12 +32,22 @@ public class AcademicAdvisor {
     @Column(name = "academic_year", nullable = false)
     String academicYear;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
     Timestamp updatedAt;
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     boolean isDeleted;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
 }

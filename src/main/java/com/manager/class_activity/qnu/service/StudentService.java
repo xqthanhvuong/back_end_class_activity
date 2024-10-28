@@ -44,7 +44,12 @@ public class StudentService {
 
     public PagedResponse<StudentResponse> getStudents(CustomPageRequest<?> request) {
         Page<Student> students = studentRepository.getStudentsByPaged(
-                request.toPageable(), request.getKeyWord(), request.getDepartmentId(), request.getCourseId(), request.getClassId());
+                request.toPageable(),
+                request.getKeyWord(),
+                request.getDepartmentId(),
+                request.getCourseId(),
+                request.getClassId()
+        );
         List<StudentResponse> studentResponses = new ArrayList<>();
         for (Student student : students.getContent()) {
             studentResponses.add(studentMapper.toStudentResponse(student));
@@ -100,7 +105,7 @@ public class StudentService {
     public void saveStudents(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
-                if(hadStudentCode(record.get("student_code"))){
+                if (hadStudentCode(record.get("student_code"))) {
                     continue;
                 }
                 StudentRequest student = StudentRequest.builder()

@@ -10,8 +10,12 @@ import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface StudentMapper {
+    @Mappings({
+            @Mapping(source = "clazz.department.name", target = "departmentName"),
+            @Mapping(source = "clazz.course.name", target = "courseName"),
+            @Mapping(source = "clazz.name", target = "className")
+    })
     StudentResponse toStudentResponse(Student student);
     Student toStudent(StudentRequest request);
     void updateStudent(@MappingTarget Student student,StudentRequest request);
-
 }
