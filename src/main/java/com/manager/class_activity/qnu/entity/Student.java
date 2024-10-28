@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -32,6 +33,9 @@ public class Student {
     @Column(nullable = false)
     GenderEnum gender;
 
+    @Column(name = "email", length = 255)
+    String email;
+
     @ManyToOne
     @JoinColumn(name = "class_id")
     Class clazz; //done
@@ -42,11 +46,11 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "id_account")
     Account account; //done
-
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    
+    @Column(name = "created_at", nullable = false)
     Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
     Timestamp updatedAt;
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
@@ -63,4 +67,14 @@ public class Student {
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     Set<StudentPosition> studentPositions;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
 }

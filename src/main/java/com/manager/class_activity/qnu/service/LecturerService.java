@@ -16,6 +16,7 @@ import com.manager.class_activity.qnu.repository.LecturerRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -30,6 +31,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LecturerService {
     LecturerRepository lecturerRepository;
@@ -45,7 +47,7 @@ public class LecturerService {
                         .departmentId(Integer.parseInt(record.get("department_id")))
                         .email(record.get("email"))
                         .name(record.get("name"))
-                        .birthDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.get("birth_date")))
+                        .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
                         .phoneNumber(record.get("phone_number"))
                         .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
                         .degree(record.get("degree"))
@@ -56,7 +58,7 @@ public class LecturerService {
                 saveLecturer(lecturer);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
@@ -108,7 +110,7 @@ public class LecturerService {
         Lecturer lecturer = lecturerMapper.toLecturer(request);
         Account account = Account.builder()
                 .username(request.getEmail())
-                .password(request.getBirthDate().toString())
+                .password(StringHelper.createPassword(request.getBirthDate()))
                 .build();
         accountService.saveAccount(account);
         lecturer.setAccount(account);

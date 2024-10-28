@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,6 +31,11 @@ public class StudentController {
         return JsonResponse.success(studentService.getStudentResponseById(studentId));
     }
 
+    @PostMapping("/upload")
+    public JsonResponse<String> uploadCSV(@RequestParam("file") MultipartFile file) {
+        studentService.saveStudents(file);
+        return JsonResponse.success("File uploaded and data saved successfully.");
+    }
 
     @PostMapping()
     public JsonResponse<String> createStudent(@RequestBody StudentRequest request) {

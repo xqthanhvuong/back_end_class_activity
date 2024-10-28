@@ -48,13 +48,15 @@ public class CustomPageRequest<T> {
         return getFilterValue(AbstractFilter::getKeyWord);
     }
 
-    public Integer getDepartmentId(){
+    public Integer getDepartmentId() {
         return getFilterValue(AbstractFilter::getDepartmentId);
     }
-    public Integer getCourseId(){
+
+    public Integer getCourseId() {
         return getFilterValue(AbstractFilter::getCourseId);
     }
-    public Integer getClassId(){
+
+    public Integer getClassId() {
         return getFilterValue(AbstractFilter::getClassId);
     }
 

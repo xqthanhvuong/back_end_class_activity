@@ -6,6 +6,7 @@ import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.response.ClassResponse;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryClassResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.ClassService;
 import lombok.AccessLevel;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -55,5 +58,10 @@ public class ClassController {
     public JsonResponse<String> deleteClass(@PathVariable("classId") int classId) {
         classService.deleteClass(classId);
         return JsonResponse.success("Class deleted successfully.");
+    }
+
+    @GetMapping()
+    public  JsonResponse<List<SummaryClassResponse>> getAll(){
+        return JsonResponse.success(classService.getSummaryclass());
     }
 }

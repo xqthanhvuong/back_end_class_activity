@@ -17,6 +17,7 @@ import com.manager.class_activity.qnu.repository.StudentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -33,6 +34,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class StudentService {
     StudentRepository studentRepository;
     StudentMapper studentMapper;
@@ -64,12 +66,13 @@ public class StudentService {
         Class clazz = classService.getClassById(request.getClassId());
         Account account = Account.builder()
                 .username(request.getStudentCode())
-                .password(request.getBirthDate().toString())
+                .password(StringHelper.createPassword(request.getBirthDate()))
                 .type(typeService.getTypeStudent())
                 .build();
+        accountService.saveAccount(account);
         Student student = studentMapper.toStudent(request);
         student.setClazz(clazz);
-
+        student.setAccount(account);
         studentRepository.save(student);
     }
 
@@ -90,6 +93,7 @@ public class StudentService {
     public void deleteStudent(int studentId) {
         Student student = getStudentById(studentId);
         student.setDeleted(true);
+        accountService.deleteAccount(student.getAccount().getId());
         studentRepository.save(student);
     }
 
@@ -103,13 +107,14 @@ public class StudentService {
                         .name(record.get("name"))
                         .classId(Integer.parseInt(record.get("class_id")))
                         .studentCode(record.get("student_code"))
-                        .birthDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.get("birth_date")))
+                        .email(record.get("email"))
+                        .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
                         .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
                         .build();
                 saveStudent(student);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }

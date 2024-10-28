@@ -2,6 +2,7 @@ package com.manager.class_activity.qnu.mapper;
 
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
 import com.manager.class_activity.qnu.dto.response.ClassResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryClassResponse;
 import com.manager.class_activity.qnu.entity.Class;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,4 +18,5 @@ public interface ClassMapper {
     ClassResponse toClassResponse(Class clazz);
     void updateClass(@MappingTarget Class clazz, ClassRequest classRequest);
     Class toClass(ClassRequest classRequest);
+    SummaryClassResponse toSummaryClassResponse(Class clazz);
 }

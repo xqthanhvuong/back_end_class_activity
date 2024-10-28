@@ -3,6 +3,7 @@ package com.manager.class_activity.qnu.service;
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
 import com.manager.class_activity.qnu.dto.response.ClassResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.dto.response.SummaryClassResponse;
 import com.manager.class_activity.qnu.entity.Class;
 import com.manager.class_activity.qnu.entity.Department;
 import com.manager.class_activity.qnu.entity.Course;
@@ -14,6 +15,7 @@ import com.manager.class_activity.qnu.repository.ClassRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -28,6 +30,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ClassService {
     ClassRepository classRepository;
@@ -100,7 +103,7 @@ public class ClassService {
                 saveClass(clazz);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
@@ -109,5 +112,12 @@ public class ClassService {
         return !ObjectUtils.isEmpty(classRepository.findByNameAndIsDeleted(name, false));
     }
 
-
+    public List<SummaryClassResponse> getSummaryclass() {
+        List<Class> classes = classRepository.getAllByIsDeleted(false);
+        List<SummaryClassResponse> summaryClassResponses = new ArrayList<>();
+        for (Class clazz : classes) {
+            summaryClassResponses.add(classMapper.toSummaryClassResponse(clazz));
+        }
+        return summaryClassResponses;
+    }
 }

@@ -17,6 +17,7 @@
     import lombok.AccessLevel;
     import lombok.RequiredArgsConstructor;
     import lombok.experimental.FieldDefaults;
+    import lombok.extern.slf4j.Slf4j;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @Service
+    @Slf4j
     public class AuthenticationService {
         AccountRepository accountRepository;
         PermissionService permissionService;
@@ -82,7 +84,7 @@
             try {
                 invalidateToken(Objects.requireNonNull(SecurityUtils.getCurrentJWTToken()));
             } catch (ParseException e) {
-                System.out.println("ngay day bi loi");
+                log.error(e.getMessage());
                 throw new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION);
             }
         }

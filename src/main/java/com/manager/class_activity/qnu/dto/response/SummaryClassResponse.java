@@ -7,24 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentResponse {
+public class SummaryClassResponse {
     int id;
-    String studentCode;
     String name;
-    String gender;
-    String className;
-    String departmentName;
-    String courseName;
-    String email;
-    Date birthDate;
-    Timestamp createdAt;
-    Timestamp updatedAt;
 }

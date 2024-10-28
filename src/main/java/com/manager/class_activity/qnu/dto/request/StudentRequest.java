@@ -23,6 +23,7 @@ public class StudentRequest {
     @NotBlank(message = "Student name cannot be blank")
     String name;
     Date birthDate;
+    String email;
     GenderEnum gender;
     int classId;
 }

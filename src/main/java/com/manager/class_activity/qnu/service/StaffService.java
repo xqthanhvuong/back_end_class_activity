@@ -16,6 +16,7 @@ import com.manager.class_activity.qnu.repository.StaffRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -31,6 +32,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StaffService {
     StaffRepository staffRepository;
@@ -42,23 +44,21 @@ public class StaffService {
     public void saveStaffs(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
-
+                if(hadStaffWithEmail(record.get("email"))){
+                    continue;
+                }
                 StaffRequest staff = StaffRequest.builder()
                         .departmentId(Integer.parseInt(record.get("department_id")))
                         .email(record.get("email"))
                         .name(record.get("name"))
-                        .birthDate(new SimpleDateFormat("yyyy-MM-dd").parse(record.get("birth_date")))
+                        .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
                         .phoneNumber(record.get("phone_number"))
                         .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
                         .build();
-                System.out.println(staff.getDepartmentId());
-                if(hadStaffWithEmail(record.get("email"))){
-                    continue;
-                }
                 saveStaff(staff);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
@@ -113,7 +113,6 @@ public class StaffService {
                 .password(StringHelper.createPassword(request.getBirthDate()))
                 .type(typeService.getTypeDepartment())
                 .build();
-        System.out.println(account.getPassword());
         accountService.saveAccount(account);
         staff.setAccount(account);
         staff.setDepartment(department);
