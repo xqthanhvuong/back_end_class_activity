@@ -4,6 +4,8 @@ server:
     context-path: /AMQNU/api/
 
 spring:
+  profiles:
+    active: dev
   datasource:
     url: "jdbc:mysql://localhost:3306/qnu"
     username: ${DB_USERNAME}
@@ -34,3 +36,5 @@ springdoc:
 
 jwt:
   signerKey: "EIG2ryG3InsGo7mStNgivMrw2/OpHD4UrBJUPwkSWacWJaEztRuqsr/axSiuCTxZ"
+
+

@@ -15,22 +15,22 @@ import java.util.Optional;
 public interface AcademicAdvisorRepository extends JpaRepository<AcademicAdvisor, Integer> {
     List<AcademicAdvisor> findAllByIsDeletedFalse();
     Optional<AcademicAdvisor> findByIdAndIsDeletedFalse(int id);
-    @Query("SELECT st from AcademicAdvisor st where st.isDeleted = false " +
-            "and (:keyword is NULL or lower(st.lecturer.name) like lower(concat('%', :keyword, '%')) " +
-            "or str(st.id) like lower(concat('%', :keyword, '%')) " +
-            "or str(st.lecturer.id) like lower(concat('%', :keyword, '%')))" +
-            "and (:departmentId is Null or st.clazz.department.id = :departmentId)" +
-            "and (:courseId is null or st.clazz.course.id = :courseId)" +
-            "and (:classId is null or st.clazz.id = :classId)")
-    Page<AcademicAdvisor> getAdvisorsByPaged(Pageable pageable, String keyWord, Integer departmentId, Integer courseId, Integer classId);
-
-    @Query("SELECT DISTINCT st.lecturer FROM AcademicAdvisor st " +
-            "WHERE st.isDeleted = false " +
-            "AND (:keyword IS NULL OR LOWER(st.lecturer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR STR(st.lecturer.id) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:departmentId IS NULL OR st.clazz.department.id = :departmentId) " +
-            "AND (:courseId IS NULL OR st.clazz.course.id = :courseId) " +
-            "AND (:classId IS NULL OR st.clazz.id = :classId)")
-    Page<Lecturer> getUniqueLecturersByPaged(Pageable pageable, String keyword, Integer departmentId, Integer courseId, Integer classId);
+//    @Query("SELECT st from AcademicAdvisor st where st.isDeleted = false " +
+//            "and (:keyword is NULL or lower(st.lecturer.name) like lower(concat('%', :keyword, '%')) " +
+//            "or str(st.id) like lower(concat('%', :keyword, '%')) " +
+//            "or str(st.lecturer.id) like lower(concat('%', :keyword, '%')))" +
+//            "and (:departmentId is Null or st.clazz.department.id = :departmentId)" +
+//            "and (:courseId is null or st.clazz.course.id = :courseId)" +
+//            "and (:classId is null or st.clazz.id = :classId)")
+//    Page<AcademicAdvisor> getAdvisorsByPaged(Pageable pageable, String keyWord, Integer departmentId, Integer courseId, Integer classId);
+//
+//    @Query("SELECT DISTINCT st.lecturer FROM AcademicAdvisor st " +
+//            "WHERE st.isDeleted = false " +
+//            "AND (:keyword IS NULL OR LOWER(st.lecturer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+//            "OR STR(st.lecturer.id) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+//            "AND (:departmentId IS NULL OR st.clazz.department.id = :departmentId) " +
+//            "AND (:courseId IS NULL OR st.clazz.course.id = :courseId) " +
+//            "AND (:classId IS NULL OR st.clazz.id = :classId)")
+//    Page<Lecturer> getUniqueLecturersByPaged(Pageable pageable, String keyword, Integer departmentId, Integer courseId, Integer classId);
 
 }

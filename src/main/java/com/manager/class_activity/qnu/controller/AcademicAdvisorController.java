@@ -27,11 +27,11 @@ public class AcademicAdvisorController {
         return JsonResponse.success(response);
     }
 
-    @PostMapping("/get-advisors")
-    public JsonResponse<PagedResponse<AcademicAdvisorResponse>> searchAdvisors(@RequestBody CustomPageRequest<FilterAdvisor> request) {
-        PagedResponse<AcademicAdvisorResponse> response = academicAdvisorService.getAdvisor(request);
-        return JsonResponse.success(response);
-    }
+//    @PostMapping("/get-advisors")
+//    public JsonResponse<PagedResponse<AcademicAdvisorResponse>> searchAdvisors(@RequestBody CustomPageRequest<FilterAdvisor> request) {
+//        PagedResponse<AcademicAdvisorResponse> response = academicAdvisorService.getAdvisor(request);
+//        return JsonResponse.success(response);
+//    }
 
     @GetMapping("/{id}")
     public JsonResponse<AcademicAdvisorResponse> getAcademicAdvisorById(@PathVariable int id) {
