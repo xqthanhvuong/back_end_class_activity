@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -41,4 +42,14 @@ public class ActivityGuide {
 
     @OneToMany(mappedBy = "activityGuide", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Set<DepartmentActivityGuide> departmentActivityGuides;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
 }
