@@ -36,10 +36,10 @@ public class AttendanceRecord {
     @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'Absent'")
     AttendanceStatusEnum status;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
     Timestamp updatedAt;
 
     @PrePersist
