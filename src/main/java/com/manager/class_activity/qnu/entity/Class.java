@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -56,11 +57,15 @@ public class Class {
     @OneToMany(mappedBy = "clazz", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     Set<StudentPosition> studentPositions;
 
+    @Column(name = "duration_years", nullable = false, precision = 3, scale = 1, columnDefinition = "DECIMAL(3,1) DEFAULT 4.0")
+    BigDecimal durationYears = BigDecimal.valueOf(4.0);
+
     @PrePersist
     protected void onCreate() {
         createdAt = Timestamp.valueOf(LocalDateTime.now());
         updatedAt = Timestamp.valueOf(LocalDateTime.now());
     }
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = Timestamp.valueOf(LocalDateTime.now());

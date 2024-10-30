@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -37,10 +37,10 @@ public class ClassActivity {
     @Column(name = "activity_time", nullable = false)
     Timestamp activityTime;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
     Timestamp updatedAt;
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
@@ -54,4 +54,14 @@ public class ClassActivity {
 
     @OneToMany(mappedBy = "classActivity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     Set<Notification> notifications;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
 }

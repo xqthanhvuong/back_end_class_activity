@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,5 +121,15 @@ public class ClassService {
             summaryClassResponses.add(classMapper.toSummaryClassResponse(clazz));
         }
         return summaryClassResponses;
+    }
+
+    public List<Class> getClasses(){
+        float currentYear = (float) LocalDate.now().getYear();
+        int currentMonth = LocalDate.now().getMonthValue();
+        if(currentMonth >=6){
+            currentYear = (float) (currentYear + 0.5);
+        }
+        log.info("currentYear: " + currentYear);
+        return classRepository.findByStartYearAndDurationYearsGreaterThan(currentYear);
     }
 }
