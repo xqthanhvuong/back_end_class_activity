@@ -42,7 +42,11 @@ public enum ErrorCode {
     LECTURER_IS_EXISTED(1030,"Lecturer email is existed" , HttpStatus.CONFLICT),
     CLASS_NOT_FOUND(1031,"Class not fond" ,HttpStatus.NOT_FOUND),
     STUDENT_NOT_FOUND(1032,"Student not fond" ,HttpStatus.NOT_FOUND),
-    ADVISOR_NOT_FOUND(1033,"Advisor not fond" ,HttpStatus.NOT_FOUND);
+    ADVISOR_NOT_FOUND(1033,"Advisor not fond" ,HttpStatus.NOT_FOUND),
+    STUDENT_POSITION_NOT_FOND(1034,"Position not fond" ,HttpStatus.NOT_FOUND),
+    DUPLICATE_POSITION(1035, "Student is already holding this position",HttpStatus.CONFLICT),
+    UPLOAD_ERROR(1036,"Upload file ERROR" ,HttpStatus.BAD_REQUEST ),
+    INVALID_FILE(1037,"File invalid" ,HttpStatus.BAD_REQUEST );
 
     private final int code;
     private final String message;

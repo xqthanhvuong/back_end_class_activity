@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.mapper;
 
 import com.manager.class_activity.qnu.dto.request.StudentRequest;
+import com.manager.class_activity.qnu.dto.response.StudentOfClass;
 import com.manager.class_activity.qnu.dto.response.StudentResponse;
 import com.manager.class_activity.qnu.entity.Student;
 import org.mapstruct.Mapper;
@@ -18,4 +19,5 @@ public interface StudentMapper {
     StudentResponse toStudentResponse(Student student);
     Student toStudent(StudentRequest request);
     void updateStudent(@MappingTarget Student student,StudentRequest request);
+    StudentOfClass toStudentOfClass(Student student);
 }

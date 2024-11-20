@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.dto.request;
 
 import com.manager.class_activity.qnu.entity.GenderEnum;
+import com.manager.class_activity.qnu.entity.StudentPositionEnum;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,4 +27,5 @@ public class StudentRequest {
     String email;
     GenderEnum gender;
     int classId;
+    StudentPositionEnum studentPositionEnum;
 }

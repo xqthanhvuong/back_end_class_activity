@@ -1,10 +1,7 @@
 package com.manager.class_activity.qnu.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
@@ -14,6 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "class_activity")
@@ -33,6 +31,10 @@ public class ClassActivity {
     @ManyToOne
     @JoinColumn(name = "activity_guide_id", nullable = false)
     ActivityGuide activityGuide; //done
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    Status status;
 
     @Column(name = "activity_time", nullable = false)
     Timestamp activityTime;
@@ -57,6 +59,9 @@ public class ClassActivity {
 
     @PrePersist
     protected void onCreate() {
+        if (status == null) {
+            status = Status.PLANNED; // Giá trị mặc định
+        }
         createdAt = Timestamp.valueOf(LocalDateTime.now());
         updatedAt = Timestamp.valueOf(LocalDateTime.now());
     }

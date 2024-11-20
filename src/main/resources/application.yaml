@@ -2,6 +2,8 @@ server:
   port: 8000
   servlet:
     context-path: /AMQNU/api/
+  tomcat:
+    max-swallow-size: 50MB
 
 spring:
   profiles:
@@ -18,6 +20,10 @@ spring:
     baseline-on-migrate: true
     out-of-order: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 logging:
   level:

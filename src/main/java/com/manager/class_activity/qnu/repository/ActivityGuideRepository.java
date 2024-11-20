@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ActivityGuideRepository extends JpaRepository<ActivityGuide, Integer> {
+    ActivityGuide findByNameAndIsDeleted(String name,boolean isDeleted);
 }

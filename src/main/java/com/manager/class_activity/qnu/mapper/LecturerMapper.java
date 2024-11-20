@@ -11,7 +11,9 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface LecturerMapper {
     @Mappings({
-            @Mapping(source = "department.name", target = "departmentName")
+            @Mapping(source = "department.name", target = "departmentName"),
+            @Mapping(source = "department.id", target = "departmentId")
+
     })
     LecturerResponse toLecturerResponse(Lecturer lecturer);
 

@@ -18,4 +18,5 @@ public class ClassRequest {
     String name;
     int departmentId;
     int courseId;
+    String durationYears;
 }

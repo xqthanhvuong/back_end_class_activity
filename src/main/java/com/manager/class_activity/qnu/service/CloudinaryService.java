@@ -2,6 +2,8 @@ package com.manager.class_activity.qnu.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.manager.class_activity.qnu.exception.BadException;
+import com.manager.class_activity.qnu.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -41,33 +43,50 @@ public class CloudinaryService {
                 "secure", true
         ));
     }
-
     @Async
     public CompletableFuture<String> uploadPdfAsync(MultipartFile file) {
+        if (file == null || file.isEmpty() || !file.getOriginalFilename().endsWith(".pdf")) {
+            throw new BadException(ErrorCode.INVALID_FILE);
+        }
+
+        File pdfFile = null;
         try {
-            File pdfFile = convertToFile(file);
+            // Chuyển MultipartFile sang File
+            pdfFile = convertToFile(file);
+
+            // Thiết lập tham số upload
             Map<String, Object> params = ObjectUtils.asMap(
                     "resource_type", "raw",
                     "folder", "pdf_files",
                     "type", "upload"
             );
 
+            // Upload file lên Cloudinary
             Map<String, Object> uploadResult = cloudinary.uploader().upload(pdfFile, params);
             String fileUrl = (String) uploadResult.get("url");
-            log.info("Upload successful! File URL: " + fileUrl);
-            pdfFile.delete();
+
+            log.info("Upload successful! File URL: {}", fileUrl);
             return CompletableFuture.completedFuture(fileUrl);
+
         } catch (Exception e) {
-            log.error("Error uploading file: " + e.getMessage());
-            return CompletableFuture.completedFuture(null);
+            log.error("Error uploading file: {}", e.getMessage(), e);
+            throw new BadException(ErrorCode.UPLOAD_ERROR);
+        } finally {
+            if (pdfFile != null && pdfFile.exists()) {
+                if (!pdfFile.delete()) {
+                    log.warn("Temporary file deletion failed: {}", pdfFile.getAbsolutePath());
+                }
+            }
         }
     }
 
     private File convertToFile(MultipartFile file) throws IOException {
+        // Chuyển đổi MultipartFile sang File
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
             fos.write(file.getBytes());
         }
         return convFile;
     }
+
 }

@@ -42,7 +42,6 @@ public class LecturerService {
     public void saveLecturers(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
-
                 LecturerRequest lecturer = LecturerRequest.builder()
                         .departmentId(Integer.parseInt(record.get("department_id")))
                         .email(record.get("email"))

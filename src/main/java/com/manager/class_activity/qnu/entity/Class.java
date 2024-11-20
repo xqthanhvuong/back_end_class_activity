@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -52,6 +53,7 @@ public class Class {
     Set<ClassActivity> classActivities;
 
     @OneToMany(mappedBy = "clazz", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Where(clause = "is_deleted = false")
     Set<Student> students;
 
     @OneToMany(mappedBy = "clazz", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

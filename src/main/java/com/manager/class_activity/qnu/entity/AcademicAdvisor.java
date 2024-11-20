@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "academic_advisor")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AcademicAdvisor {
+    public class AcademicAdvisor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;

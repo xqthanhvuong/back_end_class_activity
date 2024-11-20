@@ -1,19 +1,18 @@
 package com.manager.class_activity.qnu.service;
 
-import com.manager.class_activity.qnu.dto.request.ClassRequest;
+import com.manager.class_activity.qnu.dto.request.StudentPositionRequest;
 import com.manager.class_activity.qnu.dto.request.StudentRequest;
 import com.manager.class_activity.qnu.dto.response.StudentResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
-import com.manager.class_activity.qnu.entity.GenderEnum;
-import com.manager.class_activity.qnu.entity.Student;
+import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.entity.Class;
-import com.manager.class_activity.qnu.entity.Account;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
 import com.manager.class_activity.qnu.repository.StudentRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -41,6 +40,7 @@ public class StudentService {
     ClassService classService;
     AccountService accountService;
     TypeService typeService;
+    StudentPositionService studentPositionService;
 
     public PagedResponse<StudentResponse> getStudents(CustomPageRequest<?> request) {
         Page<Student> students = studentRepository.getStudentsByPaged(
@@ -67,6 +67,7 @@ public class StudentService {
         return studentMapper.toStudentResponse(getStudentById(studentId));
     }
 
+    @Transactional
     public void saveStudent(StudentRequest request) {
         Class clazz = classService.getClassById(request.getClassId());
         Account account = Account.builder()
@@ -79,12 +80,18 @@ public class StudentService {
         student.setClazz(clazz);
         student.setAccount(account);
         studentRepository.save(student);
+        StudentPositionRequest studentPositionRequest = StudentPositionRequest.builder()
+                .studentId(student.getId())
+                .position(ObjectUtils.isNotEmpty(request.getStudentPositionEnum())
+                        ? request.getStudentPositionEnum() : StudentPositionEnum.Member)
+                .classId(clazz.getId())
+                .build();
+        studentPositionService.saveStudentPosition(studentPositionRequest);
     }
 
     public void updateStudent(int studentId, StudentRequest request) {
         Student student = getStudentById(studentId);
         Class clazz = classService.getClassById(request.getClassId());
-
         studentMapper.updateStudent(student, request);
         student.setClazz(clazz);
         studentRepository.save(student);
@@ -102,6 +109,7 @@ public class StudentService {
         studentRepository.save(student);
     }
 
+    @Transactional
     public void saveStudents(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
@@ -113,6 +121,7 @@ public class StudentService {
                         .classId(Integer.parseInt(record.get("class_id")))
                         .studentCode(record.get("student_code"))
                         .email(record.get("email"))
+                        .studentPositionEnum(StudentPositionEnum.valueOf(record.get("gender")))
                         .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
                         .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
                         .build();

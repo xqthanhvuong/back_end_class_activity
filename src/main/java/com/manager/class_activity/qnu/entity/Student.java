@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Where;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -66,6 +67,7 @@ public class Student {
     Set<ClassActivity> classActivities;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Where(clause = "is_deleted = false")
     Set<StudentPosition> studentPositions;
 
     @PrePersist

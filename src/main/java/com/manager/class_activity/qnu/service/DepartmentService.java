@@ -17,6 +17,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +31,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class DepartmentService {
+    private static final Logger log = LoggerFactory.getLogger(DepartmentService.class);
     DepartmentRepository departmentRepository;
     DepartmentMapper departmentMapper;
 
@@ -44,9 +47,12 @@ public class DepartmentService {
                 departmentRepository.save(department);
             }
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
+
+
 
     public PagedResponse<DepartmentResponse> getDepartments(CustomPageRequest<?> request) {
         Page<Department> departments = departmentRepository.getDepartmentsByPaged(request.toPageable()

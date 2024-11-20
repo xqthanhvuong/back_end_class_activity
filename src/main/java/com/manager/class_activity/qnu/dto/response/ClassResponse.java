@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -18,7 +19,10 @@ public class ClassResponse {
     int id;
     String name;
     String departmentName;
+    int departmentId;
     String courseName;
+    int courseId;
+    BigDecimal durationYears;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

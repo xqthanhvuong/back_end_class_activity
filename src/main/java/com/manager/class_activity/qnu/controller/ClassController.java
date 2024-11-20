@@ -3,10 +3,7 @@ package com.manager.class_activity.qnu.controller;
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.request.FilterClass;
-import com.manager.class_activity.qnu.dto.response.ClassResponse;
-import com.manager.class_activity.qnu.dto.response.JsonResponse;
-import com.manager.class_activity.qnu.dto.response.PagedResponse;
-import com.manager.class_activity.qnu.dto.response.SummaryClassResponse;
+import com.manager.class_activity.qnu.dto.response.*;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.ClassService;
 import lombok.AccessLevel;
@@ -36,9 +33,9 @@ public class ClassController {
         return JsonResponse.success(response);
     }
 
-    @GetMapping("/{classId}")
-    public JsonResponse<ClassResponse> getClassById(@PathVariable("classId") int classId) {
-        return JsonResponse.success(classService.getClassResponseById(classId));
+    @PostMapping("/{classId}")
+    public JsonResponse<ClassDetailResponse> getClassById(@PathVariable("classId") int classId, @RequestBody CustomPageRequest<Filter> request) {
+        return JsonResponse.success(classService.getClassDetailById(classId, request));
     }
 
     @PostMapping()

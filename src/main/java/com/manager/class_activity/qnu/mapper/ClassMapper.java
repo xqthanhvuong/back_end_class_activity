@@ -13,10 +13,14 @@ import org.mapstruct.Mappings;
 public interface ClassMapper {
     @Mappings({
             @Mapping(source = "department.name", target = "departmentName"),
-            @Mapping(source = "course.name", target = "courseName")
+            @Mapping(source = "department.id", target = "departmentId"),
+            @Mapping(source = "course.name", target = "courseName"),
+            @Mapping(source = "course.id", target = "courseId")
     })
     ClassResponse toClassResponse(Class clazz);
+    @Mapping(target = "durationYears", ignore = true)
     void updateClass(@MappingTarget Class clazz, ClassRequest classRequest);
+    @Mapping(target = "durationYears", ignore = true)
     Class toClass(ClassRequest classRequest);
     SummaryClassResponse toSummaryClassResponse(Class clazz);
 }

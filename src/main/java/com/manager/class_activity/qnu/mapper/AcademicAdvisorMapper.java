@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AcademicAdvisorMapper {
-
     @Mapping(source = "lecturer.name", target = "lecturerName")
     @Mapping(source = "clazz.name", target = "className")
     AcademicAdvisorResponse toResponse(AcademicAdvisor advisor);

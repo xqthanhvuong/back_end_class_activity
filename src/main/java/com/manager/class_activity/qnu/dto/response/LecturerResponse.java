@@ -24,6 +24,7 @@ public class LecturerResponse {
     String email;
     Date birthDate;
     String degree;
+    int departmentId;
     String departmentName;
     Timestamp createdAt;
     Timestamp updatedAt;

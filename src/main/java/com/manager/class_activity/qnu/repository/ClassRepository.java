@@ -28,4 +28,5 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
 
     @Query("SELECT c FROM Class c WHERE (c.course.startYear + c.durationYears) >= :currentYear AND c.isDeleted = false")
     List<Class> findByStartYearAndDurationYearsGreaterThan(float currentYear);
+
 }

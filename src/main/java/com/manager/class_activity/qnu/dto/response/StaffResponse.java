@@ -24,6 +24,7 @@ public class StaffResponse {
     String phoneNumber;
     String email;
     String departmentName;
+    int departmentId;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

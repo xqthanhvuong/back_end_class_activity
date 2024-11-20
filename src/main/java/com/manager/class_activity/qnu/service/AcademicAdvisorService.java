@@ -75,17 +75,26 @@ public class AcademicAdvisorService {
         academicAdvisorRepository.save(advisor);
     }
 
-//    public PagedResponse<AcademicAdvisorResponse> getAdvisor(CustomPageRequest<FilterAdvisor> request) {
-//        Page<Lecturer> advisors = academicAdvisorRepository.getUniqueLecturersByPaged(
-//                request.toPageable(),
-//                request.getKeyWord(),
-//                request.getDepartmentId(),
-//                request.getCourseId(),
-//                request.getClassId()
-//        );
-//        List<AcademicAdvisorResponse> advisorResponses = new ArrayList<>();
-//        for(Lecturer advisor : advisors) {
-//
-//        }
-//    }
+    public PagedResponse<AcademicAdvisorResponse> getAdvisor(CustomPageRequest<FilterAdvisor> request) {
+        Page<AcademicAdvisor> advisors = academicAdvisorRepository.getAdvisorsByPaged(
+                request.toPageable(),
+                request.getKeyWord(),
+                request.getDepartmentId(),
+                request.getCourseId(),
+                request.getClassId()
+        );
+        List<AcademicAdvisorResponse> advisorResponses = new ArrayList<>();
+        for (AcademicAdvisor advisor : advisors) {
+            advisorResponses.add(academicAdvisorMapper.toResponse(advisor));
+        }
+        return new PagedResponse<>(
+                advisorResponses,
+                advisors.getNumber(),
+                advisors.getTotalElements(),
+                advisors.getTotalPages(),
+                advisors.isLast()
+        );
+    }
+
+
 }
