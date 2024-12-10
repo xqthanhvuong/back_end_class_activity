@@ -139,6 +139,7 @@ public class ClassService {
             studentOfClass.setStudentPosition(studentPositionRepository.findLatestActivePositionByStudentId(studentOfClass.getId()).getPosition().toString());
         }
         result.setStudentOfClass(studentOfClassList);
+        result.setTotal(students.getTotalElements());
         return result;
     }
 }

@@ -35,11 +35,16 @@ public class ActivityGuide {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     boolean isDeleted;
 
-    @OneToMany(mappedBy = "activityGuide", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    Set<ClassActivity> classActivities;
+    @ManyToOne
+    @JoinColumn(name = "activity_id", nullable = false)
+    Activity activity;
 
-    @OneToMany(mappedBy = "activityGuide", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    Set<DepartmentActivityGuide> departmentActivityGuides;
+
+//    @OneToMany(mappedBy = "activityGuide", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    Set<ClassActivity> classActivities;
+//
+//    @OneToMany(mappedBy = "activityGuide", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    Set<DepartmentActivityGuide> departmentActivityGuides;
 
     @PrePersist
     protected void onCreate() {

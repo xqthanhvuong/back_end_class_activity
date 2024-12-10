@@ -21,10 +21,12 @@ public class StudentResponse {
     String name;
     String gender;
     String className;
+    int classId;
     String departmentName;
     String courseName;
     String email;
     Date birthDate;
+    String studentPosition;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

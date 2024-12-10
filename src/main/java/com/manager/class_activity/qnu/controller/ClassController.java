@@ -9,6 +9,7 @@ import com.manager.class_activity.qnu.service.ClassService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class ClassController {
         return JsonResponse.success("File uploaded and data saved successfully.");
     }
 
+    @PreAuthorize("hasRole('VIEW_CLASS')")
     @PostMapping("/get-classes")
     public JsonResponse<PagedResponse<ClassResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClass> request) {
         PagedResponse<ClassResponse> response = classService.getClasses(request);

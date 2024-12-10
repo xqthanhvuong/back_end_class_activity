@@ -1,5 +1,6 @@
 package com.manager.class_activity.qnu.repository;
 
+import com.manager.class_activity.qnu.entity.Account;
 import com.manager.class_activity.qnu.entity.AccountRole;
 import com.manager.class_activity.qnu.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ import java.util.List;
 public interface AccountRoleRepository extends JpaRepository<AccountRole, Integer> {
     @Query("SELECT ar.role from AccountRole ar where ar.account.username = :userName and ar.role.isDeleted =:isDeleted")
     List<Role> findRoleByUserName(@Param("userName") String userName, @Param("isDeleted") Boolean isDeleted);
+
+    AccountRole findByAccountAndRole(Account account, Role role);
 }

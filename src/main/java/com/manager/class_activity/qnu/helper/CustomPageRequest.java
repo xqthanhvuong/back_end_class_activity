@@ -60,5 +60,9 @@ public class CustomPageRequest<T> {
         return getFilterValue(AbstractFilter::getClassId);
     }
 
+    public Integer getActivityId() {
+        return getFilterValue(AbstractFilter::getActivityId);
+    }
+
 
 }

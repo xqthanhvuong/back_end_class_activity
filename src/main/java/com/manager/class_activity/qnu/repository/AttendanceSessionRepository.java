@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AttendanceSessionRepository extends JpaRepository<AttendanceSession, Integer> {
+    AttendanceSession findByClassActivity_Id(Integer classActivityId);
 }

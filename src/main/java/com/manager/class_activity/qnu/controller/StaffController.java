@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.controller;
 
 import com.manager.class_activity.qnu.dto.request.Filter;
+import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.request.StaffRequest;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
@@ -20,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class StaffController {
     StaffService staffService;
     @PostMapping("/get-staffs")
-    public JsonResponse<PagedResponse<StaffResponse>> searchStaffs(@RequestBody CustomPageRequest<Filter> request) {
+    public JsonResponse<PagedResponse<StaffResponse>> searchStaffs(@RequestBody CustomPageRequest<FilterClass> request) {
         PagedResponse<StaffResponse> response = staffService.getStaffs(request);
         return JsonResponse.success(response);
     }

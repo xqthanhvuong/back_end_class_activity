@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.controller;
 
 import com.manager.class_activity.qnu.dto.request.Filter;
+import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.request.LecturerRequest;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
@@ -13,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
@@ -21,7 +24,7 @@ public class LecturerController {
     LecturerService lecturerService;
 
     @PostMapping("/get-lecturers")
-    public JsonResponse<PagedResponse<LecturerResponse>> searchLecturers(@RequestBody CustomPageRequest<Filter> request) {
+    public JsonResponse<PagedResponse<LecturerResponse>> searchLecturers(@RequestBody CustomPageRequest<FilterClass> request) {
         PagedResponse<LecturerResponse> response = lecturerService.getLecturers(request);
         return JsonResponse.success(response);
     }
@@ -30,6 +33,11 @@ public class LecturerController {
     public JsonResponse<String> uploadCSV(@RequestParam("file") MultipartFile file) {
         lecturerService.saveLecturers(file);
         return JsonResponse.success("File uploaded and data saved successfully.");
+    }
+
+    @GetMapping()
+    public JsonResponse<List<LecturerResponse>> getLecturers() {
+        return JsonResponse.success(lecturerService.getAll());
     }
 
     @GetMapping("/{lecturerId}")

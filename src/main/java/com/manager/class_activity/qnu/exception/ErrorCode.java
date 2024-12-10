@@ -46,7 +46,15 @@ public enum ErrorCode {
     STUDENT_POSITION_NOT_FOND(1034,"Position not fond" ,HttpStatus.NOT_FOUND),
     DUPLICATE_POSITION(1035, "Student is already holding this position",HttpStatus.CONFLICT),
     UPLOAD_ERROR(1036,"Upload file ERROR" ,HttpStatus.BAD_REQUEST ),
-    INVALID_FILE(1037,"File invalid" ,HttpStatus.BAD_REQUEST );
+    INVALID_FILE(1037,"File invalid" ,HttpStatus.BAD_REQUEST ),
+    CLASS_ACTIVITY_NOT_FOUND(1038, "Class activity not found" ,HttpStatus.NOT_FOUND ),
+    PERMISSION_NOT_FOUND(1039,"Permission not found" ,HttpStatus.NOT_FOUND ),
+    ROLE_NOT_FOND(1040,"Role not found" ,HttpStatus.NOT_FOUND ),
+    CANT_DELETE(1041,"Data can't delete" ,HttpStatus.FORBIDDEN ),
+    TYPE_ERROR(1042,"Type error" ,HttpStatus.NOT_FOUND ),
+    TYPE_NOT_MATCH(1043,"Type not match" ,HttpStatus.CONFLICT ),
+    ACTIVITY_EXIST(1044,"Activity existed" ,HttpStatus.CONFLICT ),
+    DOCUMENT_NOT_FOUND(1045,"document not found" ,HttpStatus.NOT_FOUND );
 
     private final int code;
     private final String message;

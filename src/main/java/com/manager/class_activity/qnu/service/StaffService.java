@@ -64,7 +64,7 @@ public class StaffService {
     }
 
     public PagedResponse<StaffResponse> getStaffs(CustomPageRequest<?> request) {
-        Page<Staff> staffs = staffRepository.getStaffsByPaged(request.toPageable(), request.getKeyWord());
+        Page<Staff> staffs = staffRepository.getStaffsByPaged(request.toPageable(), request.getKeyWord(), request.getDepartmentId());
         List<StaffResponse> staffResponses = new ArrayList<>();
         for (Staff staff : staffs.getContent()) {
             staffResponses.add(staffMapper.toStaffResponse(staff));

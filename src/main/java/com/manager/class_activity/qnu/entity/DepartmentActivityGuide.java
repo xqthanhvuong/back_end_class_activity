@@ -1,18 +1,17 @@
 package com.manager.class_activity.qnu.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "department_activity_guide")
 public class DepartmentActivityGuide {
@@ -20,9 +19,15 @@ public class DepartmentActivityGuide {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
+//    @ManyToOne
+//    @JoinColumn(name = "activity_guide_id", nullable = false)
+//    ActivityGuide activityGuide; //done
+    @Column(name = "name")
+    String name;
+
     @ManyToOne
-    @JoinColumn(name = "activity_guide_id", nullable = false)
-    ActivityGuide activityGuide; //done
+    @JoinColumn(name = "activity_id", nullable = false)
+    Activity activity; //done
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
@@ -39,4 +44,14 @@ public class DepartmentActivityGuide {
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     boolean isDeleted;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
 }

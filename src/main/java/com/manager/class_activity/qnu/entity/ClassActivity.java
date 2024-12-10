@@ -28,9 +28,13 @@ public class ClassActivity {
     @JoinColumn(name = "leader_id", nullable = false)
     Student leader;  //done
 
+//    @ManyToOne
+//    @JoinColumn(name = "activity_guide_id", nullable = false)
+//    ActivityGuide activityGuide; //done
+
     @ManyToOne
-    @JoinColumn(name = "activity_guide_id", nullable = false)
-    ActivityGuide activityGuide; //done
+    @JoinColumn(name="activity_id", nullable = false)
+    Activity activity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)

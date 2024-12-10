@@ -11,6 +11,7 @@ import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
+import com.manager.class_activity.qnu.repository.StudentPositionRepository;
 import com.manager.class_activity.qnu.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -41,6 +42,7 @@ public class StudentService {
     AccountService accountService;
     TypeService typeService;
     StudentPositionService studentPositionService;
+    StudentPositionRepository studentPositionRepository;
 
     public PagedResponse<StudentResponse> getStudents(CustomPageRequest<?> request) {
         Page<Student> students = studentRepository.getStudentsByPaged(
@@ -52,7 +54,10 @@ public class StudentService {
         );
         List<StudentResponse> studentResponses = new ArrayList<>();
         for (Student student : students.getContent()) {
-            studentResponses.add(studentMapper.toStudentResponse(student));
+            StudentResponse studentResponse = studentMapper.toStudentResponse(student);
+            StudentPosition studentPosition = studentPositionRepository.findLatestActivePositionByStudentId(student.getId());
+            studentResponse.setStudentPosition(studentPosition.getPosition().toString());
+            studentResponses.add(studentResponse);
         }
         return new PagedResponse<>(
                 studentResponses,
@@ -64,7 +69,10 @@ public class StudentService {
     }
 
     public StudentResponse getStudentResponseById(int studentId) {
-        return studentMapper.toStudentResponse(getStudentById(studentId));
+        StudentResponse studentResponse = studentMapper.toStudentResponse(getStudentById(studentId));
+        StudentPosition studentPosition = studentPositionRepository.findLatestActivePositionByStudentId(studentResponse.getId());
+        studentResponse.setStudentPosition(studentPosition.getPosition().toString());
+        return studentResponse;
     }
 
     @Transactional
@@ -89,11 +97,18 @@ public class StudentService {
         studentPositionService.saveStudentPosition(studentPositionRequest);
     }
 
+    @Transactional
     public void updateStudent(int studentId, StudentRequest request) {
         Student student = getStudentById(studentId);
         Class clazz = classService.getClassById(request.getClassId());
         studentMapper.updateStudent(student, request);
         student.setClazz(clazz);
+        StudentPositionRequest studentPositionRequest = StudentPositionRequest.builder()
+                .classId(clazz.getId())
+                .studentId(studentId)
+                .position(request.getStudentPositionEnum())
+                .build();
+        studentPositionService.saveStudentPosition(studentPositionRequest);
         studentRepository.save(student);
     }
 

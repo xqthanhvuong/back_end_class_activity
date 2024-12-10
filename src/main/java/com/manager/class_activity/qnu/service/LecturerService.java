@@ -38,6 +38,7 @@ public class LecturerService {
     LecturerMapper lecturerMapper;
     DepartmentService departmentService;
     AccountService accountService;
+    TypeService typeService;
 
     public void saveLecturers(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
@@ -63,7 +64,7 @@ public class LecturerService {
     }
 
     public PagedResponse<LecturerResponse> getLecturers(CustomPageRequest<?> request) {
-        Page<Lecturer> lecturers = lecturerRepository.getLecturersByPaged(request.toPageable(), request.getKeyWord());
+        Page<Lecturer> lecturers = lecturerRepository.getLecturersByPaged(request.toPageable(), request.getKeyWord(), request.getDepartmentId());
         List<LecturerResponse> lecturerResponses = new ArrayList<>();
         for (Lecturer lecturer : lecturers.getContent()) {
             lecturerResponses.add(lecturerMapper.toLecturerResponse(lecturer));
@@ -109,8 +110,10 @@ public class LecturerService {
         Lecturer lecturer = lecturerMapper.toLecturer(request);
         Account account = Account.builder()
                 .username(request.getEmail())
+                .type(typeService.getTypeDepartment())
                 .password(StringHelper.createPassword(request.getBirthDate()))
                 .build();
+        log.info(account.getPassword());
         accountService.saveAccount(account);
         lecturer.setAccount(account);
         lecturer.setDepartment(department);
@@ -119,5 +122,14 @@ public class LecturerService {
 
     public boolean hadLecturerWithEmail(String email) {
         return lecturerRepository.existsByEmailAndIsDeleted(email, false);
+    }
+
+    public List<LecturerResponse> getAll() {
+        List<Lecturer> lecturers = lecturerRepository.findAllByIsDeleted(false);
+        List<LecturerResponse> list = new ArrayList<>();
+        for (Lecturer lec: lecturers) {
+            list.add(lecturerMapper.toLecturerResponse(lec));
+        }
+        return list;
     }
 }

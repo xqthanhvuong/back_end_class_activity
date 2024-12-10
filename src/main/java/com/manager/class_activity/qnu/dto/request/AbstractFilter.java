@@ -22,4 +22,8 @@ public abstract class AbstractFilter {
     public Integer getClassId(){
         return null;
     }
+
+    public Integer getActivityId(){
+        return null;
+    }
 }

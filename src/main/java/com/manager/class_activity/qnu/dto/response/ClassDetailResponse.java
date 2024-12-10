@@ -13,4 +13,5 @@ import java.util.List;
 public class ClassDetailResponse {
     List<StudentOfClass> studentOfClass;
     String name;
+    long total;
 }

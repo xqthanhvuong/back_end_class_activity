@@ -1,15 +1,14 @@
 package com.manager.class_activity.qnu.entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.*;
 import jakarta.persistence.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -18,7 +17,7 @@ import java.sql.Timestamp;
 public class RolePermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    Integer id;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

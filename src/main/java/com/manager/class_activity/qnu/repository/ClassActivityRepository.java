@@ -7,12 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ClassActivityRepository extends JpaRepository<ClassActivity, Integer> {
     @Query("SELECT co from ClassActivity co where co.isDeleted = false " +
-            "and str(co.id) like lower(concat('%', :keyword, '%'))" +
-            "and (:departmentId is null  or co.clazz.department.id = :departmentId)" +
+            "and (:departmentId is null or co.clazz.department.id = :departmentId) " +
             "and (:courseId is null or co.clazz.course.id = :courseId) " +
-            "and (:classId is NULL or co.clazz.id = :classId)")
-    Page<ClassActivity> getClassActivitiesByPaged(Pageable pageable, String keyword, Integer departmentId, Integer courseId, Integer classId);
+            "and (:classId is NULL or co.clazz.id = :classId) " +
+            "and (:activityId is null or co.id = :activityId)")
+    Page<ClassActivity> getClassActivitiesByPaged(Pageable pageable,
+                                                  Integer departmentId,
+                                                  Integer courseId,
+                                                  Integer classId,
+                                                  Integer activityId);
+
+    Optional<ClassActivity> getClassActivityByIdAndIsDeleted(Integer id, Boolean isDeleted);
 }

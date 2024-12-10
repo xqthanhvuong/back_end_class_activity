@@ -1,5 +1,6 @@
 package com.manager.class_activity.qnu.helper;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class StringHelper {
@@ -31,10 +32,16 @@ public class StringHelper {
         // Trả về chuỗi đã xử lý, loại bỏ khoảng trắng ở cuối
         return processedString.toString().trim();
     }
+    public static String createPassword(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
 
-    public static String createPassword(Date date){
+        String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)); // Ngày 2 chữ số
+        String month = String.format("%02d", calendar.get(Calendar.MONTH) + 1); // Tháng 2 chữ số
+        String year = String.format("%02d", calendar.get(Calendar.YEAR) % 100); // Lấy 2 chữ số cuối của năm
 
-        return date.getDate() +Integer.toString(date.getMonth()+1)+ date.getYear();
+        return day + month + year;
     }
+
 
 }

@@ -13,9 +13,16 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.AcademicAdvisorMapper;
 import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AcademicAdvisorService {
 
+    private static final Logger log = LoggerFactory.getLogger(AcademicAdvisorService.class);
     private final AcademicAdvisorRepository academicAdvisorRepository;
     private final AcademicAdvisorMapper academicAdvisorMapper;
     private final LecturerService lecturerService;
@@ -96,5 +104,26 @@ public class AcademicAdvisorService {
         );
     }
 
+
+    public void saveAdvisors(MultipartFile file) {
+        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+            for (CSVRecord record : csvParser) {
+                AcademicAdvisorRequest academicAdvisorRequest = AcademicAdvisorRequest.builder()
+                        .lecturerId(Integer.parseInt(record.get("lecturer_id")))
+                        .classId(Integer.parseInt(record.get("class_id")))
+                        .academicYear(record.get("academic_year"))
+                        .build();
+                save(academicAdvisorRequest);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
+        }
+    }
+
+    public Lecturer getAdvisorOfClass(int classId) {
+        return academicAdvisorRepository.findTopByClazzIdAndIsDeletedOrderByCreatedAtDesc(classId,false)
+                .getLecturer();
+    }
 
 }

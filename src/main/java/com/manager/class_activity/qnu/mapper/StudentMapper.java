@@ -14,7 +14,8 @@ public interface StudentMapper {
     @Mappings({
             @Mapping(source = "clazz.department.name", target = "departmentName"),
             @Mapping(source = "clazz.course.name", target = "courseName"),
-            @Mapping(source = "clazz.name", target = "className")
+            @Mapping(source = "clazz.name", target = "className"),
+            @Mapping(source = "clazz.id", target = "classId")
     })
     StudentResponse toStudentResponse(Student student);
     Student toStudent(StudentRequest request);

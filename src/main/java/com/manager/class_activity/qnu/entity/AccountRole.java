@@ -1,9 +1,6 @@
 package com.manager.class_activity.qnu.entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import jakarta.persistence.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "account_role")
+@Builder
 public class AccountRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

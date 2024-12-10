@@ -8,7 +8,9 @@ import java.util.List;
 public class AcademicAdvisorResponse {
     int id;
     String lecturerName;
+    int lecturerId;
     String className;
+    int classId;
     String academicYear;
     String createdAt;
     String updatedAt;
