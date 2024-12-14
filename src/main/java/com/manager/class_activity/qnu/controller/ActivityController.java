@@ -15,6 +15,7 @@ import io.swagger.v3.core.util.Json;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ import java.util.List;
 public class ActivityController {
     ActivityService activityService;
 
+    @PreAuthorize("hasRole('CREATE_ACTIVITY')")
     @PostMapping("/create-activity")
     public JsonResponse<String> createClassActivity(@RequestPart("files") List<MultipartFile> files,
                                                     @RequestPart("metadata") String metadata) throws JsonProcessingException {
@@ -49,6 +51,7 @@ public class ActivityController {
     public JsonResponse<PagedResponse<ActivityResponse>> getActivities(@RequestBody CustomPageRequest<Filter> request){
         return JsonResponse.success(activityService.getActivities(request));
     }
+
 
     @GetMapping()
     public JsonResponse<List<ActivitySummary>> getAllActivities(){

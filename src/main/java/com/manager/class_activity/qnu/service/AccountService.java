@@ -4,7 +4,9 @@ import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.entity.Class;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
+import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
 import com.manager.class_activity.qnu.repository.AccountRepository;
+import com.manager.class_activity.qnu.until.AcademicYearUtil;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AccountService {
     AccountRepository accountRepository;
+    AcademicAdvisorRepository academicAdvisorRepository;
+
     public void saveAccount(Account account) {
         if(accountRepository.existsByUsernameAndIsDeleted(account.getUsername(), false)) {
             throw new BadException(ErrorCode.USER_EXISTED);
@@ -48,6 +55,20 @@ public class AccountService {
         Student student = accountRepository.getStudentByUsername(username);
         if(ObjectUtils.isNotEmpty(student)){
             return student.getClazz();
+        }
+        return null;
+    }
+
+    public List<Class> getMyClassOfAccountLecturer(){
+        String username = SecurityUtils.getCurrentUsername();
+        Lecturer lecturer = accountRepository.getLecturerByUsername(username);
+        if(ObjectUtils.isNotEmpty(lecturer)){
+            List<Class> classes = new ArrayList<>();
+            List<AcademicAdvisor> advisors = academicAdvisorRepository.findByAcademicYearAndLecturerAndIsDeletedOrderByUpdatedAt(AcademicYearUtil.getCurrentAcademicYear(),lecturer,false);
+            for (AcademicAdvisor item: advisors) {
+                classes.add(item.getClazz());
+            }
+            return classes;
         }
         return null;
     }

@@ -35,6 +35,16 @@ public class ClassController {
         return JsonResponse.success(response);
     }
 
+    @PostMapping("/my-class/for-student")
+    public JsonResponse<ClassDetailResponse> getMyClass(@RequestBody CustomPageRequest<Filter> request) {
+        return JsonResponse.success(classService.getMyClass(request));
+    }
+
+    @GetMapping("/my-class/for-lecturer")
+    public JsonResponse<List<ClassResponse>> getMyClassLecturer(){
+        return JsonResponse.success(classService.getMyClassLecturer());
+    }
+
     @PostMapping("/{classId}")
     public JsonResponse<ClassDetailResponse> getClassById(@PathVariable("classId") int classId, @RequestBody CustomPageRequest<Filter> request) {
         return JsonResponse.success(classService.getClassDetailById(classId, request));

@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.service;
 
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
+import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.*;
 import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.entity.Class;
@@ -9,9 +10,9 @@ import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.ClassMapper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
-import com.manager.class_activity.qnu.repository.ClassRepository;
-import com.manager.class_activity.qnu.repository.StudentPositionRepository;
-import com.manager.class_activity.qnu.repository.StudentRepository;
+import com.manager.class_activity.qnu.repository.*;
+import com.manager.class_activity.qnu.until.AcademicYearUtil;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,6 +43,9 @@ public class ClassService {
     StudentRepository studentRepository;
     StudentMapper studentMapper;
     StudentPositionRepository studentPositionRepository;
+    AccountService accountService;
+    AccountRepository accountRepository;
+    AcademicAdvisorRepository academicAdvisorRepository;
 
     public PagedResponse<ClassResponse> getClasses(CustomPageRequest<?> request) {
         Page<Class> classes = classRepository.getClassesByPaged(request.toPageable(), request.getKeyWord(), request.getDepartmentId(), request.getCourseId());
@@ -141,5 +145,25 @@ public class ClassService {
         result.setStudentOfClass(studentOfClassList);
         result.setTotal(students.getTotalElements());
         return result;
+    }
+
+    public ClassDetailResponse getMyClass(CustomPageRequest<Filter> request) {
+        if("STUDENT".equals(SecurityUtils.getCurrentUserType())) {
+            Student student = accountRepository.getStudentByUsername(SecurityUtils.getCurrentUsername());
+            return getClassDetailById(student.getClazz().getId(),request);
+        }
+        throw new BadException(ErrorCode.ACCESS_DENIED);
+    }
+
+    public List<ClassResponse> getMyClassLecturer() {
+        if("DEPARTMENT".equals((SecurityUtils.getCurrentUserType()))){
+            List<ClassResponse> classResponses = new ArrayList<>();
+            Lecturer lecturer = accountRepository.getLecturerByUsername(SecurityUtils.getCurrentUsername());
+            for (AcademicAdvisor item: academicAdvisorRepository.findByAcademicYearAndLecturerAndIsDeletedOrderByUpdatedAt(AcademicYearUtil.getCurrentAcademicYear(),lecturer,false)) {
+                classResponses.add(classMapper.toClassResponse(item.getClazz()));
+            }
+            return classResponses;
+        }
+        throw new BadException(ErrorCode.ACCESS_DENIED);
     }
 }

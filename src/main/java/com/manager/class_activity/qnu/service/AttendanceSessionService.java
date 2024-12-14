@@ -1,9 +1,14 @@
 package com.manager.class_activity.qnu.service;
 
+import com.manager.class_activity.qnu.dto.request.AttendanceRecordRequest;
+import com.manager.class_activity.qnu.dto.response.AttendanceRecordResponse;
+import com.manager.class_activity.qnu.dto.response.RollCallResponse;
 import com.manager.class_activity.qnu.entity.*;
+import com.manager.class_activity.qnu.entity.Class;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.repository.*;
+import com.manager.class_activity.qnu.until.DateTimeUtils;
 import com.manager.class_activity.qnu.until.RandomNumberGenerator;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
@@ -12,6 +17,9 @@ import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,15 +33,23 @@ public class AttendanceSessionService {
     AccountRepository accountRepository;
     AcademicAdvisorService academicAdvisorService;
     StudentRepository studentRepository;
+    AttendanceRecordRepository attendanceRecordRepository;
 
-    public void createAttendanceSession(int activityId){
+    public String createAttendanceSession(int activityId){
         ClassActivity classActivity = classActivityRepository.getClassActivityByIdAndIsDeleted(activityId,false).orElseThrow(
                 ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
         );
-        if(!isInClass(classActivity)){
+        if(!isInClass(classActivity.getClazz())){
             throw new BadException(ErrorCode.ACCESS_DENIED);
         }
-        AttendanceSession attendanceSession = AttendanceSession.builder()
+        if(!DateTimeUtils.compareTimestamp(classActivity.getActivityTime())){
+            throw new BadException(ErrorCode.ACTIVITY_NOT_YET_BEGIn);
+        }
+        AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(activityId);
+        if(ObjectUtils.isNotEmpty(attendanceSession)){
+            return attendanceSession.getAttendanceCode();
+        }
+        attendanceSession = AttendanceSession.builder()
                 .attendanceCode(RandomNumberGenerator.generateRandomSixDigit())
                 .classActivity(classActivity)
                 .build();
@@ -47,25 +63,74 @@ public class AttendanceSessionService {
         }
         attendanceSession.setAttendanceRecords(attendanceRecordSet);
         attendanceSessionRepository.save(attendanceSession);
+        return attendanceSession.getAttendanceCode();
     }
 
 
-    public boolean isInClass(ClassActivity classActivity){
+    public boolean isInClass(Class clazz){
         Student student = accountRepository.getStudentByUsername(SecurityUtils.getCurrentUsername());
         if(ObjectUtils.isNotEmpty(student)){
-            return student.getClazz().equals(classActivity.getClazz());
+            return student.getClazz().equals(clazz);
         }
         Lecturer lecturer = accountRepository.getLecturerByUsername(SecurityUtils.getCurrentUsername());
         if(ObjectUtils.isNotEmpty(lecturer)){
-            return lecturer.equals(academicAdvisorService.getAdvisorOfClass(classActivity.getId()));
+            return lecturer.equals(academicAdvisorService.getAdvisorOfClass(clazz));
         }
         return false;
     }
-//
-//    public AttendanceSession getAttendanceSession(Student student){
-//        return attendanceSessionRepository.
-//
-//    }
 
+    public RollCallResponse rollCall(int classActivityId, String attendanceCode){
+        ClassActivity classActivity = classActivityRepository.getClassActivityByIdAndIsDeleted(classActivityId,false).orElseThrow(
+                ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
+        );
+        if(classActivity.getStatus().equals(Status.COMPLETED)){
+            throw new BadException(ErrorCode.ACTIVITY_COMPLETED);
+        }
+        Student st = accountRepository.getStudentByUsername(SecurityUtils.getCurrentUsername());
+        if(ObjectUtils.isEmpty(st)){
+            throw new BadException(ErrorCode.ACCESS_DENIED);
+        }
+        if(!isInClass(classActivity.getClazz())){
+            throw new BadException(ErrorCode.ACCESS_DENIED);
+        }
+        AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(classActivityId);
+        if(!attendanceCode.equals(attendanceSession.getAttendanceCode())){
+            return new RollCallResponse(false);
+        }
+        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByAttendanceSession_IdAndStudent_Id(attendanceSession.getId(),st.getId());
+        attendanceRecord.setStatus(AttendanceStatusEnum.getStatusBasedOnTime(classActivity.getActivityTime()));
+        attendanceRecord.setCheckInTime(Timestamp.valueOf(LocalDateTime.now()));
+        attendanceRecordRepository.save(attendanceRecord);
+        return new RollCallResponse(true);
+    }
+
+    public List<AttendanceRecordResponse> getAttendanceRecords(int classActivityId){
+        ClassActivity classActivity = classActivityRepository.getClassActivityByIdAndIsDeleted(classActivityId,false).orElseThrow(
+                ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
+        );
+        AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(classActivity.getId());
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findByAttendanceSession_Id(attendanceSession.getId());
+        List<AttendanceRecordResponse> attendanceRecordResponses = new ArrayList<>();
+        for(AttendanceRecord attendanceRecord: attendanceRecords){
+            attendanceRecordResponses.add(AttendanceRecordResponse.builder()
+                            .id(attendanceRecord.getId())
+                            .checkInTime(attendanceRecord.getCheckInTime())
+                            .status(attendanceRecord.getStatus())
+                            .studentCode(attendanceRecord.getStudent().getStudentCode())
+                            .studentName(attendanceRecord.getStudent().getName())
+                            .createdAt(attendanceRecord.getCreatedAt())
+                            .updatedAt(attendanceRecord.getUpdatedAt())
+                    .build());
+        }
+        return attendanceRecordResponses;
+    }
+
+    public void updateAttendanceRecord(AttendanceRecordRequest request){
+        AttendanceRecord attendanceRecord = attendanceRecordRepository.findById(request.getId()).orElseThrow(
+                ()-> new BadException(ErrorCode.NOT_FOND)
+        );
+        attendanceRecord.setStatus(request.getAttendanceStatus());
+        attendanceRecordRepository.save(attendanceRecord);
+    }
 
 }

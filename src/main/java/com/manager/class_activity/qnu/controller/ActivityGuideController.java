@@ -13,6 +13,7 @@ import com.manager.class_activity.qnu.service.ActivityService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,7 @@ public class ActivityGuideController {
         return JsonResponse.success(activityGuideService.getAllSummary());
     }
 
+    @PreAuthorize("hasRole('CREATE_GUIDE')")
     @PostMapping("/{id}")
     public JsonResponse<String> addActivityGuide(@PathVariable int id,
                                                  @RequestPart("files") List<MultipartFile> files,
@@ -58,6 +60,7 @@ public class ActivityGuideController {
 
     }
 
+    @PreAuthorize("hasRole('DELETE_GUIDE')")
     @DeleteMapping("/{id}")
     public JsonResponse<String> deleteActivityGuide(@PathVariable int id) {
         activityGuideService.deleteActivityGuide(id);

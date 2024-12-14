@@ -4,14 +4,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 import jakarta.persistence.*;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.builder.HashCodeExclude;
 
 import java.sql.Timestamp;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "role_permission")
 public class RolePermission {

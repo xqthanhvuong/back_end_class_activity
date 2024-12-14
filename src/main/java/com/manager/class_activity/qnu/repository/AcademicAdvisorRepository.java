@@ -1,13 +1,12 @@
 package com.manager.class_activity.qnu.repository;
 
-import com.manager.class_activity.qnu.dto.AcademicAdvisorDTO;
 import com.manager.class_activity.qnu.entity.AcademicAdvisor;
+import com.manager.class_activity.qnu.entity.Class;
 import com.manager.class_activity.qnu.entity.Lecturer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,6 +31,12 @@ public interface AcademicAdvisorRepository extends JpaRepository<AcademicAdvisor
     AcademicAdvisor getAdvisorByClassIdAndAcademicYear(Integer classId, String academicYear);
 
     AcademicAdvisor findTopByClazzIdAndIsDeletedOrderByCreatedAtDesc(int classId, boolean isDeleted);
+
+    List<AcademicAdvisor> findByAcademicYearAndLecturerAndIsDeletedOrderByUpdatedAt(String academicYear, Lecturer lecturer, boolean isDeleted);
+
+    List<AcademicAdvisor> findByAcademicYearAndClazzAndIsDeletedOrderByUpdatedAt(String academicYear, Class clazz, boolean isDeleted);
+
+
 
 //    @Query("SELECT DISTINCT st.lecturer FROM AcademicAdvisor st " +
 //            "WHERE st.isDeleted = false " +

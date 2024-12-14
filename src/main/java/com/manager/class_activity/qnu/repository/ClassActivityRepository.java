@@ -15,7 +15,7 @@ public interface ClassActivityRepository extends JpaRepository<ClassActivity, In
             "and (:departmentId is null or co.clazz.department.id = :departmentId) " +
             "and (:courseId is null or co.clazz.course.id = :courseId) " +
             "and (:classId is NULL or co.clazz.id = :classId) " +
-            "and (:activityId is null or co.id = :activityId)")
+            "and (:activityId is null or co.activity.id = :activityId)")
     Page<ClassActivity> getClassActivitiesByPaged(Pageable pageable,
                                                   Integer departmentId,
                                                   Integer courseId,

@@ -12,6 +12,7 @@ import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.AcademicAdvisorMapper;
 import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
+import com.manager.class_activity.qnu.until.AcademicYearUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -121,9 +122,17 @@ public class AcademicAdvisorService {
         }
     }
 
-    public Lecturer getAdvisorOfClass(int classId) {
-        return academicAdvisorRepository.findTopByClazzIdAndIsDeletedOrderByCreatedAtDesc(classId,false)
-                .getLecturer();
+    public Lecturer getAdvisorOfClass(Class clazz) {
+        List<AcademicAdvisor> advisors = new ArrayList<>(academicAdvisorRepository
+                .findByAcademicYearAndClazzAndIsDeletedOrderByUpdatedAt(
+                        AcademicYearUtil.getCurrentAcademicYear()
+                        , clazz
+                        , false));
+        if (advisors.isEmpty()){
+            return null;
+        }else {
+            return advisors.getFirst().getLecturer();
+        }
     }
 
 }

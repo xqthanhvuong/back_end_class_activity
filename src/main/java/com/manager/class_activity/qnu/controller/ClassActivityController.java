@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -27,7 +28,6 @@ import java.util.Date;
 public class ClassActivityController {
     ClassActivityService classActivityService;
     AccountService accountService;
-
 
     @PostMapping("/get-activities")
     public JsonResponse<PagedResponse<ClassActivityResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClassActivity> request) {
@@ -49,6 +49,7 @@ public class ClassActivityController {
         return JsonResponse.success(response);
     }
 
+    @PreAuthorize("hasRole('SET_TIME')")
     @PatchMapping("/{id}/activity-time")
     public JsonResponse<String> updateActivityTime(
             @PathVariable int id,

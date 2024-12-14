@@ -54,7 +54,10 @@ public enum ErrorCode {
     TYPE_ERROR(1042,"Type error" ,HttpStatus.NOT_FOUND ),
     TYPE_NOT_MATCH(1043,"Type not match" ,HttpStatus.CONFLICT ),
     ACTIVITY_EXIST(1044,"Activity existed" ,HttpStatus.CONFLICT ),
-    DOCUMENT_NOT_FOUND(1045,"document not found" ,HttpStatus.NOT_FOUND );
+    DOCUMENT_NOT_FOUND(1045,"document not found" ,HttpStatus.NOT_FOUND ),
+    ACTIVITY_NOT_YET_BEGIn(1046,"Operating time has not yet begun" ,HttpStatus.BAD_REQUEST ),
+    ACTIVITY_COMPLETED(1049,"activity completed" ,HttpStatus.CONFLICT ),
+    NOT_FOND(1050,"Not fond" ,HttpStatus.NOT_FOUND );
 
     private final int code;
     private final String message;

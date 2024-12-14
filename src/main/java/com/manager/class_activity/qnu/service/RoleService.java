@@ -58,6 +58,7 @@ public class RoleService {
         roleRepository.save(newRole);
     }
 
+    @Transactional
     public void updateRoleWithPermissions(int roleId, String roleName, List<Integer> permissionIds) {
         Role role = roleRepository.findByIdAndIsDeleted(roleId, false)
                 .orElseThrow(() -> new BadException(ErrorCode.ROLE_NOT_FOND));
@@ -68,28 +69,45 @@ public class RoleService {
         if (permissions.size() != permissionIds.size()) {
             throw new BadException(ErrorCode.PERMISSION_NOT_FOUND);
         }
+
         Set<RolePermission> existingRolePermissions = role.getRolePermissions();
         Set<Permission> permissionSet = new HashSet<>(permissions);
         Set<RolePermission> permissionsToRemove = new HashSet<>();
+
+        // Xác định các quyền cần xóa
         for (RolePermission rolePermission : existingRolePermissions) {
             if (!permissionSet.contains(rolePermission.getPermission())) {
                 permissionsToRemove.add(rolePermission);
             }
         }
-        rolePermissionRepository.deleteAll(permissionsToRemove);
 
-        Set<RolePermission> updatedRolePermissions = new HashSet<>(existingRolePermissions);
+        // Xóa các quyền cần xóa khỏi DB
+        if (!permissionsToRemove.isEmpty()) {
+            for (RolePermission item: permissionsToRemove) {
+                rolePermissionRepository.deleteByRole_Id(item.getId());
+            }
+        }
+
+        // Làm mới danh sách từ cơ sở dữ liệu
+        Set<RolePermission> updatedRolePermissions = new HashSet<>(rolePermissionRepository.findByRole_Id(roleId));
+        role.setRolePermissions(updatedRolePermissions);
+
+        // Thêm các quyền mới
         for (Permission permission : permissions) {
-            boolean alreadyHasPermission = existingRolePermissions.stream()
+            boolean alreadyHasPermission = updatedRolePermissions.stream()
                     .anyMatch(rp -> rp.getPermission().equals(permission));
 
             if (!alreadyHasPermission) {
                 updatedRolePermissions.add(new RolePermission(null, role, permission, null));
             }
         }
+
         role.setRolePermissions(updatedRolePermissions);
         roleRepository.save(role);
     }
+
+
+
 
 
     public void deleteRole(int roleId) {

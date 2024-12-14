@@ -67,15 +67,6 @@ public class ClassActivityService {
                 request.getClassId(),
                 request.getActivityId()
         );
-        System.out.println(request.getDepartmentId());
-        System.out.println(request.getDepartmentId());
-        System.out.println(request.getClassId());
-        System.out.println(request.getCourseId());
-        System.out.println(request.getKeyWord());
-        System.out.println(request.getActivityId());
-
-
-
         List<ClassActivityResponse> classActivityResponses = new ArrayList<>();
         for(ClassActivity classActivity : classActivityPage.getContent()) {
             classActivityResponses.add(classActivityMapper.toClassActivityResponse(classActivity));
