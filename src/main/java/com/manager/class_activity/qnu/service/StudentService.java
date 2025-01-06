@@ -11,8 +11,11 @@ import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
+import com.manager.class_activity.qnu.repository.AccountRoleRepository;
+import com.manager.class_activity.qnu.repository.RoleRepository;
 import com.manager.class_activity.qnu.repository.StudentPositionRepository;
 import com.manager.class_activity.qnu.repository.StudentRepository;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +43,11 @@ public class StudentService {
     StudentMapper studentMapper;
     ClassService classService;
     AccountService accountService;
+    AccountRoleRepository accountRoleRepository;
     TypeService typeService;
     StudentPositionService studentPositionService;
     StudentPositionRepository studentPositionRepository;
+    RoleRepository roleRepository;
 
     public PagedResponse<StudentResponse> getStudents(CustomPageRequest<?> request) {
         Page<Student> students = studentRepository.getStudentsByPaged(
@@ -78,12 +83,24 @@ public class StudentService {
     @Transactional
     public void saveStudent(StudentRequest request) {
         Class clazz = classService.getClassById(request.getClassId());
+        if(SecurityUtils.isRoleDepartment()){
+            if(!clazz.getDepartment().equals(accountService.getDepartmentOfAccount())){
+                throw new BadException(ErrorCode.ACCESS_DENIED);
+            }
+        }
         Account account = Account.builder()
                 .username(request.getStudentCode())
                 .password(StringHelper.createPassword(request.getBirthDate()))
                 .type(typeService.getTypeStudent())
                 .build();
+        AccountRole accountRole = AccountRole.builder()
+                .role(roleRepository.findByIdAndIsDeleted(4,false).orElseThrow(
+                                ()->new BadException(ErrorCode.ROLE_NOT_FOND)
+                ))
+                .account(account)
+                .build();
         accountService.saveAccount(account);
+        accountRoleRepository.save(accountRole);
         Student student = studentMapper.toStudent(request);
         student.setClazz(clazz);
         student.setAccount(account);

@@ -7,7 +7,9 @@ import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.dto.response.LecturerResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
+import com.manager.class_activity.qnu.service.AccountService;
 import com.manager.class_activity.qnu.service.LecturerService;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,9 +24,14 @@ import java.util.List;
 @RequestMapping("/lecturers")
 public class LecturerController {
     LecturerService lecturerService;
+    AccountService accountService;
 
     @PostMapping("/get-lecturers")
     public JsonResponse<PagedResponse<LecturerResponse>> searchLecturers(@RequestBody CustomPageRequest<FilterClass> request) {
+        if(SecurityUtils.isRoleDepartment()){
+            Integer departmentId = accountService.getDepartmentOfAccount().getId();
+            request.getFilter().setDepartmentId(departmentId);
+        }
         PagedResponse<LecturerResponse> response = lecturerService.getLecturers(request);
         return JsonResponse.success(response);
     }

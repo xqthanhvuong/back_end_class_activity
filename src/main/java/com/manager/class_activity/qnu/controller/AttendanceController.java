@@ -41,7 +41,4 @@ public class AttendanceController {
         return JsonResponse.success(attendanceSessionService.getAttendanceRecords(id));
     }
 
-
-
-
 }

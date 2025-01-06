@@ -3,16 +3,17 @@ package com.manager.class_activity.qnu.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class ClassDetailResponse {
-    List<StudentOfClass> studentOfClass;
-    int id;
-    String name;
-    long total;
+public class ActivityViewResponse {
+    String studentName;
+    String studentCode;
+    boolean isReaded;
+    Timestamp viewTime;
 }

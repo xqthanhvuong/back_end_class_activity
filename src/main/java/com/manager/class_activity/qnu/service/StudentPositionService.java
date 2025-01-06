@@ -1,11 +1,11 @@
 package com.manager.class_activity.qnu.service;
 
 import com.manager.class_activity.qnu.dto.request.StudentPositionRequest;
-import com.manager.class_activity.qnu.entity.StudentPosition;
-import com.manager.class_activity.qnu.entity.StudentPositionEnum;
+import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.mapper.StudentPositionMapper;
+import com.manager.class_activity.qnu.repository.AccountRoleRepository;
 import com.manager.class_activity.qnu.repository.StudentPositionRepository;
 import com.manager.class_activity.qnu.repository.StudentRepository;
 import jakarta.transaction.Transactional;
@@ -28,10 +28,14 @@ public class StudentPositionService {
     StudentRepository studentRepository;
     ClassService classService;
     StudentPositionMapper studentPositionMapper;
+    AccountRoleRepository accountRoleRepository;
+    RoleService roleService;
 
     @Transactional
     public void saveStudentPosition(StudentPositionRequest studentPositionRequest) {
         StudentPosition currentStudentPosition = studentPositionRepository.findLatestActivePositionByStudentId(studentPositionRequest.getStudentId());
+        Student student = studentRepository.findByIdAndIsDeleted(studentPositionRequest.getStudentId(), false)
+                .orElseThrow(() -> new BadException(ErrorCode.STUDENT_NOT_FOUND));
 
         if(ObjectUtils.isNotEmpty(currentStudentPosition)) {
             if (currentStudentPosition.getPosition().equals(studentPositionRequest.getPosition())) {
@@ -52,14 +56,25 @@ public class StudentPositionService {
                                 .student(item.getStudent())
                                 .build();
                         studentPositionRepository.save(studentPosition);
+                        if(item.getPosition().equals(StudentPositionEnum.ClassLeader) && studentPositionRequest.getPosition().equals(StudentPositionEnum.ClassLeader)){
+                            Account account = item.getStudent().getAccount();
+                            AccountRole accountRole = accountRoleRepository.findByAccountAndRole(account,roleService.getRoleStudentLeader());
+                            if(ObjectUtils.isNotEmpty(accountRole)){
+                                accountRoleRepository.delete(accountRole);
+                            }
+                        }
                     }
                 }
             }
         }
+        if(studentPositionRequest.getPosition().equals(StudentPositionEnum.ClassLeader)) {
+            Account account = student.getAccount();
+            AccountRole accountRole = AccountRole.builder().account(account).role(roleService.getRoleStudentLeader()).build();
+            accountRoleRepository.save(accountRole);
+        }
         StudentPosition studentPosition = studentPositionMapper.toStudentPosition(studentPositionRequest);
         studentPosition.setClazz(classService.getClassById(studentPositionRequest.getClassId()));
-        studentPosition.setStudent(studentRepository.findByIdAndIsDeleted(studentPositionRequest.getStudentId(), false)
-                .orElseThrow(() -> new BadException(ErrorCode.STUDENT_NOT_FOUND)));
+        studentPosition.setStudent(student);
         studentPositionRepository.save(studentPosition);
 
     }

@@ -26,6 +26,8 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
 
     List<Class> getAllByIsDeleted(boolean b);
 
+    List<Class> findAllByDepartment_IdAndIsDeleted(Integer departmentId, boolean b);
+
     @Query("SELECT c FROM Class c WHERE (c.course.startYear + c.durationYears) >= :currentYear AND c.isDeleted = false")
     List<Class> findByStartYearAndDurationYearsGreaterThan(float currentYear);
 

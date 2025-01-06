@@ -7,33 +7,34 @@ import lombok.experimental.FieldDefaults;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "Minutes_of_class_activities")
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "attendance_record")
-public class AttendanceRecord {
+public class MinutesOfClassActivities {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @ManyToOne
-    @JoinColumn(name = "attendance_session_id", nullable = false)
-    AttendanceSession attendanceSession; //done
+    @Column(name = "last_month_activity", columnDefinition = "TEXT")
+    String lastMonthActivity;
+
+    @Column(name = "this_month_activity", columnDefinition = "TEXT")
+    String thisMonthActivity;
+
+    @Column(name = "teacher_feedback", columnDefinition = "TEXT")
+    String teacherFeedback;
+
+    @Column(name = "class_feedback", columnDefinition = "TEXT")
+    String classFeedback;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
-    Student student; //done
-
-    @Column(name = "check_in_time")
-    Timestamp checkInTime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'Absent'")
-    AttendanceStatusEnum status;
+    @JoinColumn(name = "class_activity_id", referencedColumnName = "id")
+    ClassActivity classActivity;
 
     @Column(name = "created_at", nullable = false)
     Timestamp createdAt;

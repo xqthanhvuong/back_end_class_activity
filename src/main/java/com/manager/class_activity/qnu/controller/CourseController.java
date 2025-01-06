@@ -1,5 +1,6 @@
 package com.manager.class_activity.qnu.controller;
 
+import com.manager.class_activity.qnu.constant.PermissionConstant;
 import com.manager.class_activity.qnu.dto.request.CourseRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.*;
@@ -13,10 +14,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -26,12 +27,14 @@ import java.util.List;
 public class CourseController {
     CourseService courseService;
 
+    @PreAuthorize(PermissionConstant.CREATE_COURSE)
     @PostMapping("/upload")
     public JsonResponse<String> uploadCSV(@RequestParam("file") MultipartFile file) {
         courseService.saveCourses(file);
         return JsonResponse.success("File uploaded and data saved successfully.");
     }
 
+    @PreAuthorize(PermissionConstant.VIEW_COURSE)
     @PostMapping("/get-courses")
     public JsonResponse<PagedResponse<CourseResponse>> searchCourses(@RequestBody CustomPageRequest<Filter> request) {
         PagedResponse<CourseResponse> response = courseService.getCourses(request);
@@ -44,15 +47,15 @@ public class CourseController {
     }
 
     @GetMapping("/download-template")
-    public ResponseEntity<Resource> downloadTemplate() throws IOException {
-        Resource resource = new ClassPathResource("sample csv/departments.csv");
-
+    public ResponseEntity<Resource> downloadTemplate() {
+        Resource resource = new ClassPathResource("sample csv/sample_courses.csv");
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=departments_template.csv");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=course_template.csv");
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
+    @PreAuthorize(PermissionConstant.UPDATE_COURSE)
     @PutMapping("/{courseId}")
     public JsonResponse<String> updateCourse(@PathVariable("courseId") int courseId,
                                              @RequestBody CourseRequest request) {
@@ -60,12 +63,14 @@ public class CourseController {
         return JsonResponse.success("Course updated successfully.");
     }
 
+    @PreAuthorize(PermissionConstant.CREATE_COURSE)
     @PostMapping()
     public JsonResponse<String> createCourse(@RequestBody CourseRequest request) {
         courseService.saveCourse(request);
         return JsonResponse.success("Course saved successfully.");
     }
 
+    @PreAuthorize(PermissionConstant.DELETE_COURSE)
     @DeleteMapping("/{courseId}")
     public JsonResponse<String> deleteCourse(@PathVariable("courseId") int courseId) {
         courseService.deleteCourse(courseId);

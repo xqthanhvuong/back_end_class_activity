@@ -24,4 +24,6 @@ public interface LecturerRepository extends JpaRepository<Lecturer, Integer> {
     boolean existsByEmailAndIsDeleted(String email, boolean isDeleted);
 
     List<Lecturer> findAllByIsDeleted(boolean isDeleted);
+
+    List<Lecturer> findAllByDepartment_IdAndIsDeleted(Integer departmentId, boolean isDeleted);
 }

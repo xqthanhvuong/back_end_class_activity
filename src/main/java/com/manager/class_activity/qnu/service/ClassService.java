@@ -12,6 +12,9 @@ import com.manager.class_activity.qnu.mapper.ClassMapper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
 import com.manager.class_activity.qnu.repository.*;
 import com.manager.class_activity.qnu.until.AcademicYearUtil;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -61,11 +64,22 @@ public class ClassService {
     }
 
     public void saveClass(ClassRequest request) {
-        Department department = departmentService.getDepartmentById(request.getDepartmentId());
+        Department department;
+        if(SecurityUtils.isRoleDepartment()){
+            department = accountService.getDepartmentOfAccount();
+        }else {
+            department = departmentService.getDepartmentById(request.getDepartmentId());
+        }
+
         Course course = courseService.getCourseById(request.getCourseId());
 
         Class clazz = classMapper.toClass(request);
-        clazz.setDurationYears(new BigDecimal(request.getDurationYears()));
+        if(request.getDurationYears()!=null) {
+            clazz.setDurationYears(new BigDecimal(request.getDurationYears()));
+        }
+        else{
+            clazz.setDurationYears(new BigDecimal(4));
+        }
         clazz.setDepartment(department);
         clazz.setCourse(course);
         classRepository.save(clazz);
@@ -94,17 +108,48 @@ public class ClassService {
     }
 
     public void saveClasses(MultipartFile file) {
-        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            for (CSVRecord record : csvParser) {
-                if (hadClassName(record.get("name"))) {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên
+
+            boolean isHeader = true;
+            for (Row row : sheet) {
+                if (isHeader) { // Bỏ qua dòng tiêu đề
+                    isHeader = false;
                     continue;
                 }
-                ClassRequest clazz = ClassRequest.builder().name(record.get("name")).departmentId(Integer.parseInt(record.get("department_id"))).courseId(Integer.parseInt(record.get("course_id"))).build();
+
+                Cell departmentIdCell = row.getCell(0); // Cột "department_id"
+                Cell nameCell = row.getCell(1); // Cột "name"
+                Cell courseIdCell = row.getCell(2); // Cột "course_id"
+                Cell durationYearsCell = row.getCell(3); // Cột "duration_years"
+
+                if (departmentIdCell == null || nameCell == null || courseIdCell == null || durationYearsCell == null) {
+                    continue; // Bỏ qua nếu thiếu dữ liệu
+                }
+
+                // Đọc dữ liệu từ các ô
+                Integer deptId = (int) departmentIdCell.getNumericCellValue();
+                String name = nameCell.getStringCellValue().trim();
+                Integer courseId = (int) courseIdCell.getNumericCellValue();
+                String durationYears = durationYearsCell.getStringCellValue().trim();
+
+                // Kiểm tra nếu lớp học đã tồn tại
+                if (hadClassName(name)) {
+                    continue;
+                }
+
+                // Tạo ClassRequest và lưu lớp học
+                ClassRequest clazz = ClassRequest.builder()
+                        .name(name)
+                        .departmentId(deptId)
+                        .durationYears(durationYears)
+                        .courseId(courseId)
+                        .build();
                 saveClass(clazz);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV); // Đổi thông báo lỗi cho Excel
         }
     }
 
@@ -113,7 +158,12 @@ public class ClassService {
     }
 
     public List<SummaryClassResponse> getSummaryclass() {
-        List<Class> classes = classRepository.getAllByIsDeleted(false);
+        List<Class> classes;
+        if(SecurityUtils.isRoleDepartment()){
+            classes = classRepository.findAllByDepartment_IdAndIsDeleted(accountService.getDepartmentOfAccount().getId(), false);
+        }else {
+            classes = classRepository.getAllByIsDeleted(false);
+        }
         List<SummaryClassResponse> summaryClassResponses = new ArrayList<>();
         for (Class clazz : classes) {
             summaryClassResponses.add(classMapper.toSummaryClassResponse(clazz));
@@ -144,6 +194,7 @@ public class ClassService {
         }
         result.setStudentOfClass(studentOfClassList);
         result.setTotal(students.getTotalElements());
+        result.setId(classId);
         return result;
     }
 

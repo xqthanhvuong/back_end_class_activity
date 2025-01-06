@@ -13,6 +13,7 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.StaffMapper;
 import com.manager.class_activity.qnu.repository.StaffRepository;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -106,7 +107,12 @@ public class StaffService {
         if(hadStaffWithEmail(request.getEmail())){
             throw new BadException(ErrorCode.STAFF_IS_EXISTED);
         }
-        Department department = departmentService.getDepartmentById(request.getDepartmentId());
+        Department department;
+        if(SecurityUtils.isRoleDepartment()){
+            department = accountService.getDepartmentOfAccount();
+        }else {
+            department = departmentService.getDepartmentById(request.getDepartmentId());
+        }
         Staff staff = staffMapper.toStaff(request);
         Account account = Account.builder()
                 .username(request.getEmail())

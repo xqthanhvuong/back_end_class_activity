@@ -43,7 +43,7 @@ public class AttendanceSessionService {
             throw new BadException(ErrorCode.ACCESS_DENIED);
         }
         if(!DateTimeUtils.compareTimestamp(classActivity.getActivityTime())){
-            throw new BadException(ErrorCode.ACTIVITY_NOT_YET_BEGIn);
+            throw new BadException(ErrorCode.ACTIVITY_NOT_YET_BEGIN);
         }
         AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(activityId);
         if(ObjectUtils.isNotEmpty(attendanceSession)){
@@ -58,11 +58,14 @@ public class AttendanceSessionService {
         for (Student st: students) {
             attendanceRecordSet.add(AttendanceRecord.builder()
                             .attendanceSession(attendanceSession)
+                            .status(AttendanceStatusEnum.Absent)
                             .student(st)
                     .build());
         }
         attendanceSession.setAttendanceRecords(attendanceRecordSet);
         attendanceSessionRepository.save(attendanceSession);
+        classActivity.setStatus(Status.ONGOING);
+        classActivityRepository.save(classActivity);
         return attendanceSession.getAttendanceCode();
     }
 
@@ -109,18 +112,20 @@ public class AttendanceSessionService {
                 ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
         );
         AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(classActivity.getId());
-        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findByAttendanceSession_Id(attendanceSession.getId());
         List<AttendanceRecordResponse> attendanceRecordResponses = new ArrayList<>();
-        for(AttendanceRecord attendanceRecord: attendanceRecords){
-            attendanceRecordResponses.add(AttendanceRecordResponse.builder()
-                            .id(attendanceRecord.getId())
-                            .checkInTime(attendanceRecord.getCheckInTime())
-                            .status(attendanceRecord.getStatus())
-                            .studentCode(attendanceRecord.getStudent().getStudentCode())
-                            .studentName(attendanceRecord.getStudent().getName())
-                            .createdAt(attendanceRecord.getCreatedAt())
-                            .updatedAt(attendanceRecord.getUpdatedAt())
-                    .build());
+        if(ObjectUtils.isNotEmpty(attendanceSession)){
+            List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findByAttendanceSession_Id(attendanceSession.getId());
+            for(AttendanceRecord attendanceRecord: attendanceRecords){
+                attendanceRecordResponses.add(AttendanceRecordResponse.builder()
+                        .id(attendanceRecord.getId())
+                        .checkInTime(attendanceRecord.getCheckInTime())
+                        .status(attendanceRecord.getStatus())
+                        .studentCode(attendanceRecord.getStudent().getStudentCode())
+                        .studentName(attendanceRecord.getStudent().getName())
+                        .createdAt(attendanceRecord.getCreatedAt())
+                        .updatedAt(attendanceRecord.getUpdatedAt())
+                        .build());
+            }
         }
         return attendanceRecordResponses;
     }

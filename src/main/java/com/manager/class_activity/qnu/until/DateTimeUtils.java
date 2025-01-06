@@ -36,7 +36,7 @@ public class DateTimeUtils {
         // Tính sự khác biệt về phút giữa hai thời gian
         long minutesDifference = ChronoUnit.MINUTES.between(now, activityDateTime);
 
-        return minutesDifference <= 30;
+        return minutesDifference <= 30 && minutesDifference >= -50;
     }
 
     public static boolean isSoLate(Timestamp end) {

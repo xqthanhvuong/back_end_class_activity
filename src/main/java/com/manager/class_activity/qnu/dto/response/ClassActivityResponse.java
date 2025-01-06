@@ -13,7 +13,9 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class ClassActivityResponse {
     int id;
+    int activityId;
     String className;
+    int classId;
     String leader;
     Timestamp activityTime;
     Status status;

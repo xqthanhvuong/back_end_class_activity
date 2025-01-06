@@ -6,7 +6,9 @@ import com.manager.class_activity.qnu.dto.response.StudentResponse;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
+import com.manager.class_activity.qnu.service.AccountService;
 import com.manager.class_activity.qnu.service.StudentService;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,9 +21,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/students")
 public class StudentController {
     StudentService studentService;
+    AccountService accountService;
 
     @PostMapping("/get-students")
     public JsonResponse<PagedResponse<StudentResponse>> searchStudents(@RequestBody CustomPageRequest<FilterStudent> request) {
+        if(SecurityUtils.isRoleDepartment()){
+            Integer departmentId = accountService.getDepartmentOfAccount().getId();
+            request.getFilter().setDepartmentId(departmentId);
+        }
         PagedResponse<StudentResponse> response = studentService.getStudents(request);
         return JsonResponse.success(response);
     }

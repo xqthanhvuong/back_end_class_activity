@@ -1,6 +1,0 @@
-name,birth_date,gender,phone_number,email,class_id,student_code
-John Doe,12/15/1985,Male,123456789,johndoe2@example.com,1,10010
-Jane Smith,6/30/1990,Female,987654321,janesmith@example.com,2,10002
-Michael Johnson,3/22/1988,Male,147852369,michael.johnson@example.com,1,10003
-Emily Davis,7/10/1995,Female,167890123,emily.davis@example.com,2,10004
-Robert Brown,11/5/1980,Male,123456780,robert.brown@example.com,1,10005

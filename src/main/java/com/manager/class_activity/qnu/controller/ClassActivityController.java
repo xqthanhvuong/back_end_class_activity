@@ -1,14 +1,16 @@
 package com.manager.class_activity.qnu.controller;
 
+import com.manager.class_activity.qnu.constant.PermissionConstant;
 import com.manager.class_activity.qnu.dto.request.ActivityTimeRequest;
 import com.manager.class_activity.qnu.dto.request.FilterClassActivity;
-import com.manager.class_activity.qnu.dto.response.ActivityResponse;
 import com.manager.class_activity.qnu.dto.response.ClassActivityResponse;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
+import com.manager.class_activity.qnu.entity.Class;
+import com.manager.class_activity.qnu.exception.BadException;
+import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
-import com.manager.class_activity.qnu.service.AccountService;
-import com.manager.class_activity.qnu.service.ClassActivityService;
+import com.manager.class_activity.qnu.service.*;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
+
 
 @RestController
 @RequestMapping("/class-activity")
@@ -28,6 +30,8 @@ import java.util.Date;
 public class ClassActivityController {
     ClassActivityService classActivityService;
     AccountService accountService;
+    AttendanceSessionService attendanceSessionService;
+    ClassService classService;
 
     @PostMapping("/get-activities")
     public JsonResponse<PagedResponse<ClassActivityResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClassActivity> request) {
@@ -49,13 +53,23 @@ public class ClassActivityController {
         return JsonResponse.success(response);
     }
 
-    @PreAuthorize("hasRole('SET_TIME')")
+    @PostMapping("/my-class")
+    public JsonResponse<PagedResponse<ClassActivityResponse>> searchMyClasses(@RequestBody CustomPageRequest<FilterClassActivity> request) {
+        Class clazz = classService.getClassById(request.getClassId());
+        if(attendanceSessionService.isInClass(clazz)){
+            return JsonResponse.success(classActivityService.getClassActivities(request));
+        }
+        throw new BadException(ErrorCode.ACCESS_DENIED);
+    }
+
+    @PreAuthorize(PermissionConstant.SET_TIME)
     @PatchMapping("/{id}/activity-time")
     public JsonResponse<String> updateActivityTime(
             @PathVariable int id,
             @RequestBody ActivityTimeRequest request) {
         Timestamp timestamp = Timestamp.from(Instant.parse(request.getActivityTime()));
         classActivityService.updateActivityTime(id, timestamp);
+
         return JsonResponse.success("Activity time updated successfully.");
     }
 

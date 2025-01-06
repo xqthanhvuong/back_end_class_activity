@@ -22,8 +22,9 @@ public interface AcademicAdvisorRepository extends JpaRepository<AcademicAdvisor
             "or str(st.lecturer.id) like lower(concat('%', :keyword, '%')))" +
             "and (:departmentId is Null or st.clazz.department.id = :departmentId)" +
             "and (:courseId is null or st.clazz.course.id = :courseId)" +
-            "and (:classId is null or st.clazz.id = :classId)")
-    Page<AcademicAdvisor> getAdvisorsByPaged(Pageable pageable, String keyword, Integer departmentId, Integer courseId, Integer classId);
+            "and (:classId is null or st.clazz.id = :classId) " +
+            "and (:academicYear is null or st.academicYear = :academicYear)")
+    Page<AcademicAdvisor> getAdvisorsByPaged(Pageable pageable, String keyword, Integer departmentId, Integer courseId, Integer classId, String academicYear);
 
     @Query("SELECT st from AcademicAdvisor st where st.isDeleted = false " +
             "and st.clazz.id = :classId " +
@@ -36,6 +37,8 @@ public interface AcademicAdvisorRepository extends JpaRepository<AcademicAdvisor
 
     List<AcademicAdvisor> findByAcademicYearAndClazzAndIsDeletedOrderByUpdatedAt(String academicYear, Class clazz, boolean isDeleted);
 
+    @Query("Select aa.academicYear from AcademicAdvisor aa group by aa.academicYear")
+    List<String> getAcademicYears();
 
 
 //    @Query("SELECT DISTINCT st.lecturer FROM AcademicAdvisor st " +

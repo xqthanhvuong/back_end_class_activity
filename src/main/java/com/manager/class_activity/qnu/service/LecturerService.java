@@ -13,6 +13,7 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.LecturerMapper;
 import com.manager.class_activity.qnu.repository.LecturerRepository;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -106,7 +107,12 @@ public class LecturerService {
         if (hadLecturerWithEmail(request.getEmail())) {
             throw new BadException(ErrorCode.LECTURER_IS_EXISTED);
         }
-        Department department = departmentService.getDepartmentById(request.getDepartmentId());
+        Department department;
+        if(SecurityUtils.isRoleDepartment()){
+            department = accountService.getDepartmentOfAccount();
+        }else {
+            department = departmentService.getDepartmentById(request.getDepartmentId());
+        }
         Lecturer lecturer = lecturerMapper.toLecturer(request);
         Account account = Account.builder()
                 .username(request.getEmail())
@@ -125,7 +131,12 @@ public class LecturerService {
     }
 
     public List<LecturerResponse> getAll() {
-        List<Lecturer> lecturers = lecturerRepository.findAllByIsDeleted(false);
+        List<Lecturer> lecturers;
+        if(SecurityUtils.isRoleDepartment()){
+            lecturers = lecturerRepository.findAllByDepartment_IdAndIsDeleted(accountService.getDepartmentOfAccount().getId(), false);
+        }else {
+            lecturers = lecturerRepository.findAllByIsDeleted(false);
+        }
         List<LecturerResponse> list = new ArrayList<>();
         for (Lecturer lec: lecturers) {
             list.add(lecturerMapper.toLecturerResponse(lec));

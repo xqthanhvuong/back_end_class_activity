@@ -3,6 +3,7 @@ package com.manager.class_activity.qnu.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.manager.class_activity.qnu.constant.PermissionConstant;
 import com.manager.class_activity.qnu.dto.request.FileRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.ActivityResponse;
@@ -11,7 +12,6 @@ import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.ActivityService;
-import io.swagger.v3.core.util.Json;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,7 +28,7 @@ import java.util.List;
 public class ActivityController {
     ActivityService activityService;
 
-    @PreAuthorize("hasRole('CREATE_ACTIVITY')")
+    @PreAuthorize(PermissionConstant.CREATE_ACTIVITY)
     @PostMapping("/create-activity")
     public JsonResponse<String> createClassActivity(@RequestPart("files") List<MultipartFile> files,
                                                     @RequestPart("metadata") String metadata) throws JsonProcessingException {

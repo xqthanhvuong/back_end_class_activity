@@ -46,6 +46,14 @@ public class SecurityUtils {
         return null;
     }
 
+    public static boolean isRoleDepartment(){
+        return "DEPARTMENT".equals(getCurrentUserType());
+    }
+
+    public static boolean isRoleStudent(){
+        return "STUDENT".equals(getCurrentUserType());
+    }
+
     public static SignedJWT getCurrentJWTToken(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (ObjectUtils.isEmpty(authentication) || !authentication.isAuthenticated()) {

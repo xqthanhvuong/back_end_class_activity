@@ -1,7 +1,10 @@
 package com.manager.class_activity.qnu.dto.request;
 
+import com.manager.class_activity.qnu.entity.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,11 +15,11 @@ public abstract class AbstractFilter {
     String keyWord;
 
     public Integer getDepartmentId() {
-        return null;  // Trả về null mặc định cho lớp không có departmentId
+        return null;
     }
 
     public Integer getCourseId() {
-        return null;  // Trả về null mặc định cho lớp không có courseId
+        return null;
     }
 
     public Integer getClassId(){
@@ -24,6 +27,10 @@ public abstract class AbstractFilter {
     }
 
     public Integer getActivityId(){
+        return null;
+    }
+
+    public List<Status> getActivityStatus(){
         return null;
     }
 }

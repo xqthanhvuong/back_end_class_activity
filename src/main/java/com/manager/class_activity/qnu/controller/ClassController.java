@@ -1,5 +1,6 @@
 package com.manager.class_activity.qnu.controller;
 
+import com.manager.class_activity.qnu.constant.PermissionConstant;
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.request.FilterClass;
@@ -9,6 +10,11 @@ import com.manager.class_activity.qnu.service.ClassService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,13 +28,14 @@ import java.util.List;
 public class ClassController {
     ClassService classService;
 
+    @PreAuthorize(PermissionConstant.CREATE_CLASS)
     @PostMapping("/upload")
     public JsonResponse<String> uploadCSV(@RequestParam("file") MultipartFile file) {
         classService.saveClasses(file);
         return JsonResponse.success("File uploaded and data saved successfully.");
     }
 
-    @PreAuthorize("hasRole('VIEW_CLASS')")
+    @PreAuthorize(PermissionConstant.VIEW_CLASS)
     @PostMapping("/get-classes")
     public JsonResponse<PagedResponse<ClassResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClass> request) {
         PagedResponse<ClassResponse> response = classService.getClasses(request);
@@ -50,12 +57,14 @@ public class ClassController {
         return JsonResponse.success(classService.getClassDetailById(classId, request));
     }
 
+    @PreAuthorize(PermissionConstant.CREATE_CLASS)
     @PostMapping()
     public JsonResponse<String> createClass(@RequestBody ClassRequest request) {
         classService.saveClass(request);
         return JsonResponse.success("Class saved successfully.");
     }
 
+    @PreAuthorize(PermissionConstant.UPDATE_CLASS)
     @PutMapping("/{classId}")
     public JsonResponse<String> updateClass(@PathVariable("classId") int classId,
                                             @RequestBody ClassRequest request) {
@@ -63,6 +72,7 @@ public class ClassController {
         return JsonResponse.success("Class updated successfully.");
     }
 
+    @PreAuthorize(PermissionConstant.DELETE_CLASS)
     @DeleteMapping("/{classId}")
     public JsonResponse<String> deleteClass(@PathVariable("classId") int classId) {
         classService.deleteClass(classId);
@@ -72,5 +82,14 @@ public class ClassController {
     @GetMapping()
     public  JsonResponse<List<SummaryClassResponse>> getAll(){
         return JsonResponse.success(classService.getSummaryclass());
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<Resource> downloadTemplate(){
+        Resource resource = new ClassPathResource("sample csv/classes_sample.xlsx");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=classes_sample.xlsx");
+
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 }

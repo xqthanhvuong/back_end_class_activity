@@ -2,6 +2,7 @@ package com.manager.class_activity.qnu.helper;
 
 import com.manager.class_activity.qnu.constant.FilterConstant;
 import com.manager.class_activity.qnu.dto.request.AbstractFilter;
+import com.manager.class_activity.qnu.entity.Status;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.function.Function;
 
 @Setter
@@ -62,6 +64,10 @@ public class CustomPageRequest<T> {
 
     public Integer getActivityId() {
         return getFilterValue(AbstractFilter::getActivityId);
+    }
+
+    public List<Status> getActivityStatus(){
+        return getFilterValue(AbstractFilter::getActivityStatus);
     }
 
 

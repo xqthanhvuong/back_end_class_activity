@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilterAdvisor extends FilterClass{
     Integer classId;
+    String academicYear;
     public FilterAdvisor(String name, Integer departmentId, Integer courseId) {
         super(name, departmentId, courseId);
     }

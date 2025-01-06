@@ -236,4 +236,11 @@ public class RoleService {
                 roles.isLast()
         );
     }
+
+
+    public Role getRoleStudentLeader(){
+        return roleRepository.findByIdAndIsDeleted(3, false).orElseThrow(
+                () -> new BadException(ErrorCode.ROLE_NOT_FOND)
+        );
+    }
 }

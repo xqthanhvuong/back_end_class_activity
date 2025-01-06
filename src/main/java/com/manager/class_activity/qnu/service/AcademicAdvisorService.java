@@ -13,7 +13,10 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.AcademicAdvisorMapper;
 import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
 import com.manager.class_activity.qnu.until.AcademicYearUtil;
+import com.manager.class_activity.qnu.until.SecurityUtils;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -30,13 +33,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AcademicAdvisorService {
 
     private static final Logger log = LoggerFactory.getLogger(AcademicAdvisorService.class);
-    private final AcademicAdvisorRepository academicAdvisorRepository;
-    private final AcademicAdvisorMapper academicAdvisorMapper;
-    private final LecturerService lecturerService;
-    private final ClassService classService;
+    AcademicAdvisorRepository academicAdvisorRepository;
+    AcademicAdvisorMapper academicAdvisorMapper;
+    LecturerService lecturerService;
+    ClassService classService;
+    AccountService accountService;
 
     public List<AcademicAdvisorResponse> getAll() {
         List<AcademicAdvisor> advisors = academicAdvisorRepository.findAllByIsDeletedFalse();
@@ -52,8 +57,18 @@ public class AcademicAdvisorService {
     }
 
     public void save(AcademicAdvisorRequest request) {
-        Lecturer lecturer = lecturerService.getLecturerById(request.getLecturerId());
-        Class clazz = classService.getClassById(request.getClassId());
+        Lecturer lecturer;
+        Class clazz;
+        lecturer = lecturerService.getLecturerById(request.getLecturerId());
+        clazz = classService.getClassById(request.getClassId());
+        if(!lecturer.getDepartment().equals(clazz.getDepartment())){
+            throw new BadException(ErrorCode.DEPARTMENT_NOT_MATCH);
+        }
+        if(SecurityUtils.isRoleDepartment()){
+            if(!lecturer.getDepartment().equals(accountService.getDepartmentOfAccount())){
+                throw new BadException(ErrorCode.ACCESS_DENIED);
+            }
+        }
 
         AcademicAdvisor advisor = new AcademicAdvisor();
         advisor.setLecturer(lecturer);
@@ -90,7 +105,8 @@ public class AcademicAdvisorService {
                 request.getKeyWord(),
                 request.getDepartmentId(),
                 request.getCourseId(),
-                request.getClassId()
+                request.getClassId(),
+                request.getFilter().getAcademicYear()
         );
         List<AcademicAdvisorResponse> advisorResponses = new ArrayList<>();
         for (AcademicAdvisor advisor : advisors) {
@@ -105,22 +121,30 @@ public class AcademicAdvisorService {
         );
     }
 
+    private AcademicAdvisorRequest parseCSVRecord(CSVRecord record) {
+        try {
+            return AcademicAdvisorRequest.builder()
+                    .lecturerId(Integer.parseInt(record.get("lecturer_id")))
+                    .classId(Integer.parseInt(record.get("class_id")))
+                    .academicYear(record.get("academic_year"))
+                    .build();
+        } catch (Exception e) {
+            log.error("Error parsing CSV record: {}", record, e);
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
+        }
+    }
 
     public void saveAdvisors(MultipartFile file) {
         try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
-                AcademicAdvisorRequest academicAdvisorRequest = AcademicAdvisorRequest.builder()
-                        .lecturerId(Integer.parseInt(record.get("lecturer_id")))
-                        .classId(Integer.parseInt(record.get("class_id")))
-                        .academicYear(record.get("academic_year"))
-                        .build();
-                save(academicAdvisorRequest);
+                save(parseCSVRecord(record));
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Error processing CSV file", e);
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
+
 
     public Lecturer getAdvisorOfClass(Class clazz) {
         List<AcademicAdvisor> advisors = new ArrayList<>(academicAdvisorRepository
@@ -135,4 +159,7 @@ public class AcademicAdvisorService {
         }
     }
 
+    public List<String> getAcademicYears() {
+        return academicAdvisorRepository.getAcademicYears();
+    }
 }
