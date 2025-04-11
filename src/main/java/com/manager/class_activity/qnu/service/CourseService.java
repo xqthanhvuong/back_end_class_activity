@@ -13,64 +13,61 @@ import com.manager.class_activity.qnu.repository.CourseRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
+@Slf4j
 public class CourseService {
     CourseRepository courseRepository;
     CourseMapper courseMapper;
 
-
     public void saveCourses(MultipartFile file) {
-        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-
-            // Kiểm tra xem các header có đúng không
-            List<String> expectedHeaders = Arrays.asList("name", "start_year", "end_year");
-            List<String> actualHeaders = csvParser.getHeaderNames();
-
-            if (!actualHeaders.containsAll(expectedHeaders)) {
-                throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
-            }
-
-            for (CSVRecord record : csvParser) {
-                // Kiểm tra từng giá trị
-                String name = record.get("name");
-                String startYear = record.get("start_year");
-                String endYear = record.get("end_year");
-
-                if (name == null || name.isEmpty()) {
-                    throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
-                }
-                if (!isInteger(startYear) || !isInteger(endYear)) {
-                    throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
-                }
-                if(hadCourseName(name)){
+        try(Workbook workbook = new XSSFWorkbook(file.getInputStream())){
+            Sheet sheet = workbook.getSheetAt(0);
+            boolean isHeader = true;
+            for(Row row : sheet){
+                if(isHeader){
+                    isHeader = false;
                     continue;
                 }
-                // Nếu hợp lệ thì lưu dữ liệu
-                Course course = new Course();
-                course.setName(name);
-                course.setStartYear(Integer.parseInt(startYear));
-                course.setEndYear(Integer.parseInt(endYear));
+                Cell nameCell = row.getCell(0); //"name"
+                Cell startYearCell = row.getCell(1); //"start_year"
+                Cell endYearCell = row.getCell(2); //"end_year"
+                if(ObjectUtils.isEmpty(nameCell) || ObjectUtils.isEmpty(startYearCell) || ObjectUtils.isEmpty(endYearCell)){
+                    continue;
+                }
+                String courseName = nameCell.getStringCellValue().trim();
+                String startYear = startYearCell.getStringCellValue().trim();
+                String endYear = endYearCell.getStringCellValue().trim();
+                if(!isFourDigitNumber(startYear) || !isFourDigitNumber(endYear)){
+                    continue;
+                }
+                if(hadCourseName(courseName)){
+                    continue;
+                }
+                Course course = Course.builder()
+                        .name(courseName)
+                        .startYear(Integer.parseInt(startYear))
+                        .endYear(Integer.parseInt(endYear))
+                        .build();
                 courseRepository.save(course);
             }
-        } catch (BadException e) {
-            throw e;
-        } catch (Exception e){
-            throw new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
     }
 
@@ -148,5 +145,9 @@ public class CourseService {
 
     public boolean hadCourseName(String name){
         return !ObjectUtils.isEmpty(courseRepository.findByNameAndIsDeleted(name, false));
+    }
+
+    public static boolean isFourDigitNumber(String str) {
+        return str.matches("\\d{4}");
     }
 }

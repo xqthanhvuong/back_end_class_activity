@@ -10,36 +10,29 @@ import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.DepartmentMapper;
 import com.manager.class_activity.qnu.repository.DepartmentRepository;
+import com.manager.class_activity.qnu.until.FileUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
+@Slf4j
 public class DepartmentService {
-    private static final Logger log = LoggerFactory.getLogger(DepartmentService.class);
     DepartmentRepository departmentRepository;
     DepartmentMapper departmentMapper;
 
@@ -53,17 +46,17 @@ public class DepartmentService {
                     isHeader = false;
                     continue;
                 }
-                Cell nameCell = row.getCell(0); // Cột "name"
-                Cell urlLogoCell = row.getCell(1); // Cột "url_logo"
+                Cell nameCell = row.getCell(0); // row "name"
+                Cell urlLogoCell = row.getCell(1); // row "url_logo"
 
                 if (nameCell == null || urlLogoCell == null) {
-                    continue; // Bỏ qua nếu thiếu dữ liệu
+                    continue; // next if miss data
                 }
-                String name = nameCell.getStringCellValue().trim();
-                String urlLogo = urlLogoCell.getStringCellValue().trim();
+                String name = FileUtil.getCellValueAsString(nameCell);
+                String urlLogo = FileUtil.getCellValueAsString(urlLogoCell);
 
                 if (hadDepartmentName(name)) {
-                    continue; // Bỏ qua nếu đã tồn tại tên khoa
+                    continue;
                 }
                 Department department = new Department();
                 department.setName(name);
@@ -71,7 +64,7 @@ public class DepartmentService {
                 departmentRepository.save(department);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }

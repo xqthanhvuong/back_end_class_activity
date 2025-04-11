@@ -48,9 +48,9 @@ public class CourseController {
 
     @GetMapping("/download-template")
     public ResponseEntity<Resource> downloadTemplate() {
-        Resource resource = new ClassPathResource("sample csv/sample_courses.csv");
+        Resource resource = new ClassPathResource("sample csv/batch_sample.xlsx");
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=course_template.csv");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=batch_sample.xlsx");
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
