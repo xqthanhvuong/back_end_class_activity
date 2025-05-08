@@ -3,8 +3,8 @@ package com.manager.class_activity.qnu.service;
 import com.manager.class_activity.qnu.dto.request.ClassRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.response.*;
-import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.entity.Class;
+import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
@@ -12,23 +12,22 @@ import com.manager.class_activity.qnu.mapper.ClassMapper;
 import com.manager.class_activity.qnu.mapper.StudentMapper;
 import com.manager.class_activity.qnu.repository.*;
 import com.manager.class_activity.qnu.until.AcademicYearUtil;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.multipart.MultipartFile;
+import com.manager.class_activity.qnu.until.FileUtil;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public class ClassService {
         classRepository.save(clazz);
     }
 
-    public void saveClasses(MultipartFile file) {
+    public void     saveClasses(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên
 
@@ -131,7 +130,7 @@ public class ClassService {
                 Integer deptId = (int) departmentIdCell.getNumericCellValue();
                 String name = nameCell.getStringCellValue().trim();
                 Integer courseId = (int) courseIdCell.getNumericCellValue();
-                String durationYears = durationYearsCell.getStringCellValue().trim();
+                String durationYears = FileUtil.getCellValueAsString(durationYearsCell);
 
                 // Kiểm tra nếu lớp học đã tồn tại
                 if (hadClassName(name)) {

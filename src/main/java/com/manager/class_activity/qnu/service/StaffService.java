@@ -13,20 +13,24 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.StaffMapper;
 import com.manager.class_activity.qnu.repository.StaffRepository;
+import com.manager.class_activity.qnu.until.FileUtil;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,23 +46,36 @@ public class StaffService {
     AccountService accountService;
     TypeService typeService;
 
+    @Transactional
     public void saveStaffs(MultipartFile file) {
-        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            for (CSVRecord record : csvParser) {
-                if(hadStaffWithEmail(record.get("email"))){
+        try(Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            boolean isHeader = true;
+            for(Row row : sheet) {
+                if(isHeader){
+                    isHeader = false;
                     continue;
                 }
-                StaffRequest staff = StaffRequest.builder()
-                        .departmentId(Integer.parseInt(record.get("department_id")))
-                        .email(record.get("email"))
-                        .name(record.get("name"))
-                        .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
-                        .phoneNumber(record.get("phone_number"))
-                        .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
-                        .build();
-                saveStaff(staff);
+                saveStaff(parseFileRecord(row));
             }
-        } catch (Exception e) {
+
+        }catch (IOException e){
+            log.error(e.getMessage());
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
+        }
+    }
+
+    public StaffRequest parseFileRecord(Row row){
+        try {
+            return StaffRequest.builder()
+                    .name(FileUtil.getCellValueAsString(row.getCell(0)))
+                    .gender(GenderEnum.valueOf(StringHelper.processString(FileUtil.getCellValueAsString(row.getCell(1)))))
+                    .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(FileUtil.getCellValueAsString(row.getCell(2))))
+                    .email(FileUtil.getCellValueAsString(row.getCell(3)))
+                    .phoneNumber(FileUtil.getCellValueAsString(row.getCell(4)))
+                    .departmentId(Integer.parseInt(FileUtil.getCellValueAsString(row.getCell(5))))
+                    .build();
+        }catch (ParseException e){
             log.error(e.getMessage());
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }

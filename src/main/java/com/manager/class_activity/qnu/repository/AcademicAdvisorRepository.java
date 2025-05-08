@@ -6,8 +6,11 @@ import com.manager.class_activity.qnu.entity.Lecturer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +40,35 @@ public interface AcademicAdvisorRepository extends JpaRepository<AcademicAdvisor
 
     List<AcademicAdvisor> findByAcademicYearAndClazzAndIsDeletedOrderByUpdatedAt(String academicYear, Class clazz, boolean isDeleted);
 
+    Boolean existsAcademicAdvisorByAcademicYearAndClazzAndLecturer(String year, Class clazz, Lecturer lecturer);
+
+
     @Query("Select aa.academicYear from AcademicAdvisor aa group by aa.academicYear")
     List<String> getAcademicYears();
+
+    @Modifying
+    @Transactional
+    @Query("update AcademicAdvisor s set s.isDeleted = true where s.clazz.department.id = :departmentId")
+    void deleteByDepartmentId(int departmentId);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+    UPDATE academic_advisor aa
+    JOIN class c ON c.id = aa.class_id
+    SET aa.is_deleted = 1
+    WHERE c.course_id = :courseId
+""", nativeQuery = true)
+    void deleteByCourseId(@Param("courseId") int courseId);
+
+
+
+    @Modifying
+    @Transactional
+    @Query("update AcademicAdvisor a set a.isDeleted = true where a.clazz.id = :classId")
+    void deleteByClassId(int classId);
+
 
 
 //    @Query("SELECT DISTINCT st.lecturer FROM AcademicAdvisor st " +

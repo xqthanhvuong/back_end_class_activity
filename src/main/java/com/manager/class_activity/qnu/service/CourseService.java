@@ -9,7 +9,11 @@ import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.CourseMapper;
+import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
+import com.manager.class_activity.qnu.repository.ClassRepository;
 import com.manager.class_activity.qnu.repository.CourseRepository;
+import com.manager.class_activity.qnu.repository.StudentRepository;
+import com.manager.class_activity.qnu.until.FileUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,6 +38,9 @@ import java.util.List;
 public class CourseService {
     CourseRepository courseRepository;
     CourseMapper courseMapper;
+    private final ClassRepository classRepository;
+    private final AcademicAdvisorRepository academicAdvisorRepository;
+    private final StudentRepository studentRepository;
 
     public void saveCourses(MultipartFile file) {
         try(Workbook workbook = new XSSFWorkbook(file.getInputStream())){
@@ -48,11 +55,12 @@ public class CourseService {
                 Cell startYearCell = row.getCell(1); //"start_year"
                 Cell endYearCell = row.getCell(2); //"end_year"
                 if(ObjectUtils.isEmpty(nameCell) || ObjectUtils.isEmpty(startYearCell) || ObjectUtils.isEmpty(endYearCell)){
+                    System.out.println("HELLLLLLLLLLLLLLLLL");
                     continue;
                 }
                 String courseName = nameCell.getStringCellValue().trim();
-                String startYear = startYearCell.getStringCellValue().trim();
-                String endYear = endYearCell.getStringCellValue().trim();
+                String startYear = FileUtil.getCellValueAsString(startYearCell);
+                String endYear = FileUtil.getCellValueAsString(endYearCell);
                 if(!isFourDigitNumber(startYear) || !isFourDigitNumber(endYear)){
                     continue;
                 }
@@ -65,13 +73,13 @@ public class CourseService {
                         .endYear(Integer.parseInt(endYear))
                         .build();
                 courseRepository.save(course);
+                log.info("Save course {} success", courseName);
             }
         }catch (Exception e){
             log.error(e.getMessage());
         }
     }
 
-    // Hàm kiểm tra một chuỗi có phải số nguyên hay không
     private boolean isInteger(String str) {
         if (str == null) {
             return false;
@@ -84,7 +92,7 @@ public class CourseService {
         }
     }
 
-    // Lấy danh sách các Course với phân trang
+
     public PagedResponse<CourseResponse> getCourses(CustomPageRequest<?> request) {
         Page<Course> courses = courseRepository.getCoursesByPaged(request.toPageable()
         , request.getKeyWord());
@@ -127,6 +135,9 @@ public class CourseService {
         Course course = getCourseById(id);
         course.setDeleted(true);
         courseRepository.save(course);
+        classRepository.deleteByCourseId(course.getId());
+        academicAdvisorRepository.deleteByCourseId(course.getId());
+        studentRepository.deleteByCourseId(course.getId());
     }
 
     public List<SummaryCourseResponse> getSummaryCourses(){

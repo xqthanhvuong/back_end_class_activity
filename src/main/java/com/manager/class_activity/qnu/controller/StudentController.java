@@ -12,8 +12,15 @@ import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -61,5 +68,14 @@ public class StudentController {
     public JsonResponse<String> deleteStudent(@PathVariable("studentId") int studentId) {
         studentService.deleteStudent(studentId);
         return JsonResponse.success("Student deleted successfully.");
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<Resource> downloadTemplate() throws IOException {
+        Resource resource = new ClassPathResource("sample csv/student_sample.xlsx");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=student_sample.xlsx");
+
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 }

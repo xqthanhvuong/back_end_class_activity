@@ -15,7 +15,7 @@ import java.util.Set;
 public interface RolePermissionRepository extends JpaRepository<RolePermission, Integer> {
     @Query("SELECT rp.permission FROM RolePermission rp WHERE rp.role.id = :roleId and rp.permission.isDeleted = :isDeleted")
     List<Permission> findPermissionsByRoleId(@Param("roleId")Integer roleId, @Param("isDeleted") Boolean isDeleted);
-
+    
     Set<RolePermission> findByRole_Id(Integer roleId);
 
     @Modifying

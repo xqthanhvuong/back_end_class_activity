@@ -1,8 +1,8 @@
 package com.manager.class_activity.qnu.service;
 
 import com.manager.class_activity.qnu.dto.request.LecturerRequest;
-import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.dto.response.LecturerResponse;
+import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.entity.Account;
 import com.manager.class_activity.qnu.entity.Department;
 import com.manager.class_activity.qnu.entity.GenderEnum;
@@ -13,19 +13,23 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.helper.StringHelper;
 import com.manager.class_activity.qnu.mapper.LecturerMapper;
 import com.manager.class_activity.qnu.repository.LecturerRepository;
+import com.manager.class_activity.qnu.until.FileUtil;
 import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,25 +45,38 @@ public class LecturerService {
     AccountService accountService;
     TypeService typeService;
 
+    @Transactional
     public void saveLecturers(MultipartFile file) {
-        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            for (CSVRecord record : csvParser) {
-                LecturerRequest lecturer = LecturerRequest.builder()
-                        .departmentId(Integer.parseInt(record.get("department_id")))
-                        .email(record.get("email"))
-                        .name(record.get("name"))
-                        .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(record.get("birth_date")))
-                        .phoneNumber(record.get("phone_number"))
-                        .gender(GenderEnum.valueOf(StringHelper.processString(record.get("gender"))))
-                        .degree(record.get("degree"))
-                        .build();
-                if (hadLecturerWithEmail(record.get("email"))) {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên
+            boolean isHeader = true;
+
+            for (Row row : sheet) {
+                if (isHeader) { // Bỏ qua dòng tiêu đề
+                    isHeader = false;
                     continue;
                 }
-                saveLecturer(lecturer);
+                saveLecturer(parseFileRecord(row));
             }
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
+        }
+    }
+
+    private LecturerRequest parseFileRecord(Row row) {
+        try{
+            return LecturerRequest.builder()
+                    .departmentId((int) Double.parseDouble(FileUtil.getCellValueAsString(row.getCell(6))))
+                    .name(FileUtil.getCellValueAsString(row.getCell(0)))
+                    .gender(GenderEnum.valueOf(StringHelper.processString(FileUtil.getCellValueAsString(row.getCell(1)))))
+                    .birthDate(new SimpleDateFormat("MM/dd/yyyy").parse(FileUtil.getCellValueAsString(row.getCell(2))))
+                    .email(FileUtil.getCellValueAsString(row.getCell(3)))
+                    .phoneNumber(FileUtil.getCellValueAsString(row.getCell(4)))
+                    .degree(FileUtil.getCellValueAsString(row.getCell(5)))
+                    .build();
+        }catch (ParseException e){
+            log.error("Error parsing File record: {}", row, e);
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }

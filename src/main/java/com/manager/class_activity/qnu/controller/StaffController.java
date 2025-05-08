@@ -1,6 +1,5 @@
 package com.manager.class_activity.qnu.controller;
 
-import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.request.StaffRequest;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
@@ -13,8 +12,15 @@ import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -61,6 +67,15 @@ public class StaffController {
     public JsonResponse<String> deleteStaff(@PathVariable("staffId") int staffId) {
         staffService.deleteStaff(staffId);
         return JsonResponse.success("Staff deleted successfully.");
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<Resource> downloadTemplate() throws IOException {
+        Resource resource = new ClassPathResource("sample csv/staff_sample.xlsx");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=staff_sample.xlsx");
+
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
 

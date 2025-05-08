@@ -13,20 +13,24 @@ import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.AcademicAdvisorMapper;
 import com.manager.class_activity.qnu.repository.AcademicAdvisorRepository;
 import com.manager.class_activity.qnu.until.AcademicYearUtil;
+import com.manager.class_activity.qnu.until.FileUtil;
 import com.manager.class_activity.qnu.until.SecurityUtils;
+import com.manager.class_activity.qnu.until.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,10 +61,8 @@ public class AcademicAdvisorService {
     }
 
     public void save(AcademicAdvisorRequest request) {
-        Lecturer lecturer;
-        Class clazz;
-        lecturer = lecturerService.getLecturerById(request.getLecturerId());
-        clazz = classService.getClassById(request.getClassId());
+        Lecturer lecturer = lecturerService.getLecturerById(request.getLecturerId());
+        Class clazz = classService.getClassById(request.getClassId());
         if(!lecturer.getDepartment().equals(clazz.getDepartment())){
             throw new BadException(ErrorCode.DEPARTMENT_NOT_MATCH);
         }
@@ -73,7 +75,13 @@ public class AcademicAdvisorService {
         AcademicAdvisor advisor = new AcademicAdvisor();
         advisor.setLecturer(lecturer);
         advisor.setClazz(clazz);
-        advisor.setAcademicYear(request.getAcademicYear());
+        advisor.setAcademicYear(StringUtils.removeAllSpaces(request.getAcademicYear()));
+        if(academicAdvisorRepository
+                .existsAcademicAdvisorByAcademicYearAndClazzAndLecturer(advisor.getAcademicYear()
+                        , advisor.getClazz()
+                        , advisor.getLecturer())){
+            return;
+        }
 
         academicAdvisorRepository.save(advisor);
     }
@@ -121,26 +129,36 @@ public class AcademicAdvisorService {
         );
     }
 
-    private AcademicAdvisorRequest parseCSVRecord(CSVRecord record) {
+    private AcademicAdvisorRequest parseFileRecord(Row row){
         try {
             return AcademicAdvisorRequest.builder()
-                    .lecturerId(Integer.parseInt(record.get("lecturer_id")))
-                    .classId(Integer.parseInt(record.get("class_id")))
-                    .academicYear(record.get("academic_year"))
+                    .lecturerId((int)  Double.parseDouble(FileUtil.getCellValueAsString(row.getCell(0))))
+                    .classId((int)  Double.parseDouble(FileUtil.getCellValueAsString(row.getCell(1))))
+                    .academicYear(FileUtil.getCellValueAsString(row.getCell(2)))
                     .build();
         } catch (Exception e) {
-            log.error("Error parsing CSV record: {}", record, e);
+            log.error("Error parsing File record: {}", row, e);
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }
 
     public void saveAdvisors(MultipartFile file) {
-        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream()), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            for (CSVRecord record : csvParser) {
-                save(parseCSVRecord(record));
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên
+            boolean isHeader = true;
+
+            for (Row row : sheet) {
+                if (isHeader) { // Bỏ qua dòng tiêu đề
+                    isHeader = false;
+                    continue;
+                }
+                if ( ObjectUtils.isEmpty(row.getCell(0)) || ObjectUtils.isEmpty(row.getCell(1))  || ObjectUtils.isEmpty(row.getCell(2)) ) {
+                    continue; // next if miss data
+                }
+                save(parseFileRecord(row));
             }
-        } catch (Exception e) {
-            log.error("Error processing CSV file", e);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
             throw new BadException(ErrorCode.INVALID_FORMAT_CSV);
         }
     }

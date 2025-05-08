@@ -3,6 +3,7 @@ package com.manager.class_activity.qnu.controller;
 import com.manager.class_activity.qnu.dto.request.AttendanceRecordRequest;
 import com.manager.class_activity.qnu.dto.request.RollCallRequest;
 import com.manager.class_activity.qnu.dto.response.AttendanceRecordResponse;
+import com.manager.class_activity.qnu.dto.response.AttendanceSessionResponse;
 import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.RollCallResponse;
 import com.manager.class_activity.qnu.service.AttendanceSessionService;
@@ -21,8 +22,13 @@ public class AttendanceController {
     AttendanceSessionService attendanceSessionService;
 
     @PostMapping("/{id}")
-    public JsonResponse<String> createAttendanceSession(@PathVariable int id) {
+    public JsonResponse<AttendanceSessionResponse> createAttendanceSession(@PathVariable int id) {
         return JsonResponse.success(attendanceSessionService.createAttendanceSession(id));
+    }
+
+    @PostMapping("/renew/{id}")
+    public JsonResponse<AttendanceSessionResponse> renewAttendanceSession(@PathVariable int id) {
+        return JsonResponse.success(attendanceSessionService.renewCode(id));
     }
 
     @PostMapping("/roll-call")

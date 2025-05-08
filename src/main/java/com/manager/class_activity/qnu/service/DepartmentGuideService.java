@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class DepartmentGuideService {
     DepartmentActivityGuideRepository departmentActivityGuideRepository;
-    CloudinaryService cloudinaryService;
+    LocalStorageService localStorageService;
     AccountService accountService;
 
     public void addDepartmentActivityGuide(FileRequest request, Activity activity) {
@@ -37,7 +37,7 @@ public class DepartmentGuideService {
         }
 
         try {
-            String pdfUrl = cloudinaryService.uploadPdfAsync(request.getFile()).get();
+            String pdfUrl = localStorageService.uploadPdfAsync(request.getFile()).get();
             Department department = accountService.getDepartmentOfAccount();
             DepartmentActivityGuide departmentActivityGuide = DepartmentActivityGuide.builder()
                     .activity(activity)

@@ -2,13 +2,10 @@ package com.manager.class_activity.qnu.controller;
 
 import com.manager.class_activity.qnu.dto.request.AccountRoleRequest;
 import com.manager.class_activity.qnu.dto.request.Filter;
-import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.request.RoleCreationRequest;
 import com.manager.class_activity.qnu.dto.response.*;
-import com.manager.class_activity.qnu.entity.Role;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.RoleService;
-import io.swagger.v3.core.util.Json;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

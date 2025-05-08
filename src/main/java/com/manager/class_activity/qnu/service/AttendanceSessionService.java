@@ -2,6 +2,7 @@ package com.manager.class_activity.qnu.service;
 
 import com.manager.class_activity.qnu.dto.request.AttendanceRecordRequest;
 import com.manager.class_activity.qnu.dto.response.AttendanceRecordResponse;
+import com.manager.class_activity.qnu.dto.response.AttendanceSessionResponse;
 import com.manager.class_activity.qnu.dto.response.RollCallResponse;
 import com.manager.class_activity.qnu.entity.*;
 import com.manager.class_activity.qnu.entity.Class;
@@ -14,6 +15,7 @@ import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,7 +38,7 @@ public class AttendanceSessionService {
     StudentRepository studentRepository;
     AttendanceRecordRepository attendanceRecordRepository;
 
-    public String createAttendanceSession(int activityId){
+    public AttendanceSessionResponse createAttendanceSession(int activityId){
         ClassActivity classActivity = classActivityRepository.getClassActivityByIdAndIsDeleted(activityId,false).orElseThrow(
                 ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
         );
@@ -47,7 +50,13 @@ public class AttendanceSessionService {
         }
         AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(activityId);
         if(ObjectUtils.isNotEmpty(attendanceSession)){
-            return attendanceSession.getAttendanceCode();
+            if(attendanceSession.getEndTime().before(Timestamp.valueOf(LocalDateTime.now()))){
+                throw new BadException(ErrorCode.ATTENDANCE_SESSION_IS_END);
+            }
+            return AttendanceSessionResponse.builder()
+                    .updateAt(attendanceSession.getUpdatedAt())
+                    .attendanceCode(attendanceSession.getAttendanceCode())
+                    .build();
         }
         attendanceSession = AttendanceSession.builder()
                 .attendanceCode(RandomNumberGenerator.generateRandomSixDigit())
@@ -66,7 +75,36 @@ public class AttendanceSessionService {
         attendanceSessionRepository.save(attendanceSession);
         classActivity.setStatus(Status.ONGOING);
         classActivityRepository.save(classActivity);
-        return attendanceSession.getAttendanceCode();
+        return AttendanceSessionResponse.builder()
+                .updateAt(attendanceSession.getUpdatedAt())
+                .attendanceCode(attendanceSession.getAttendanceCode())
+                .build();
+    }
+
+
+    public AttendanceSessionResponse renewCode(int activityId){
+        ClassActivity classActivity = classActivityRepository.getClassActivityByIdAndIsDeleted(activityId,false).orElseThrow(
+                ()->new BadException(ErrorCode.CLASS_ACTIVITY_NOT_FOUND)
+        );
+        if(!isInClass(classActivity.getClazz())){
+            throw new BadException(ErrorCode.ACCESS_DENIED);
+        }
+        if(!DateTimeUtils.compareTimestamp(classActivity.getActivityTime())){
+            throw new BadException(ErrorCode.ACTIVITY_NOT_YET_BEGIN);
+        }
+        AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(activityId);
+
+        if(ObjectUtils.isEmpty(attendanceSession)){
+            throw new BadException(ErrorCode.ATTENDANCE_SESSION_NOT_FOUND);
+        }
+
+        attendanceSession.setAttendanceCode(RandomNumberGenerator.generateRandomSixDigit());
+        attendanceSession = attendanceSessionRepository.save(attendanceSession);
+
+        return AttendanceSessionResponse.builder()
+                .updateAt(attendanceSession.getUpdatedAt())
+                .attendanceCode(attendanceSession.getAttendanceCode())
+                .build();
     }
 
 
@@ -97,7 +135,13 @@ public class AttendanceSessionService {
             throw new BadException(ErrorCode.ACCESS_DENIED);
         }
         AttendanceSession attendanceSession = attendanceSessionRepository.findByClassActivity_Id(classActivityId);
+
         if(!attendanceCode.equals(attendanceSession.getAttendanceCode())){
+            log.info("wrong code");
+            return new RollCallResponse(false);
+        }
+        if(attendanceSession.getUpdatedAt().toLocalDateTime().plusSeconds(30).isBefore(LocalDateTime.now())){
+            log.info("code expired");
             return new RollCallResponse(false);
         }
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByAttendanceSession_IdAndStudent_Id(attendanceSession.getId(),st.getId());
@@ -134,6 +178,16 @@ public class AttendanceSessionService {
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findById(request.getId()).orElseThrow(
                 ()-> new BadException(ErrorCode.NOT_FOND)
         );
+        if(ObjectUtils.isEmpty(attendanceRecord.getCheckInTime())){
+            if(request.getAttendanceStatus().equals(AttendanceStatusEnum.Late) || request.getAttendanceStatus().equals(AttendanceStatusEnum.Present)){
+                attendanceRecord.setCheckInTime(Timestamp.valueOf(LocalDateTime.now()));
+            }
+        }else {
+            if(request.getAttendanceStatus().equals(AttendanceStatusEnum.Excused) || request.getAttendanceStatus().equals(AttendanceStatusEnum.Absent)){
+                attendanceRecord.setCheckInTime(null);
+            }
+        }
+        
         attendanceRecord.setStatus(request.getAttendanceStatus());
         attendanceRecordRepository.save(attendanceRecord);
     }

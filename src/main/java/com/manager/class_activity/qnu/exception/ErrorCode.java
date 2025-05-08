@@ -58,7 +58,9 @@ public enum ErrorCode {
     ACTIVITY_NOT_YET_BEGIN(1046,"Operating time has not yet begun" ,HttpStatus.BAD_REQUEST ),
     ACTIVITY_COMPLETED(1049,"activity completed" ,HttpStatus.CONFLICT ),
     NOT_FOND(1050,"Not fond" ,HttpStatus.NOT_FOUND ),
-    DEPARTMENT_NOT_MATCH(1051,"Department not fond" ,HttpStatus.BAD_REQUEST );
+    DEPARTMENT_NOT_MATCH(1051,"Department not Match" ,HttpStatus.BAD_REQUEST ),
+    ATTENDANCE_SESSION_IS_END(1052, "Attendance session is end", HttpStatus.GONE),
+    ATTENDANCE_SESSION_NOT_FOUND(1053, "Attendance session not found", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

@@ -15,6 +15,7 @@ import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 
+@Log4j2
 @RestController
 @RequestMapping("/class-activity")
 @RequiredArgsConstructor
@@ -36,6 +38,7 @@ public class ClassActivityController {
     @PostMapping("/get-activities")
     public JsonResponse<PagedResponse<ClassActivityResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClassActivity> request) {
         PagedResponse<ClassActivityResponse> response ;
+        log.info("Get activities");
         if("SUPERADMIN".equals((SecurityUtils.getCurrentUserType()))) {
             response = classActivityService.getClassActivities(request);
         }else if("DEPARTMENT".equals((SecurityUtils.getCurrentUserType()))) {

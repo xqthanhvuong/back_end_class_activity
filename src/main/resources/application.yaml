@@ -58,7 +58,6 @@ springdoc:
   swagger-ui:
     path: /document/swagger-ui.html
 
-jwt:
-  signerKey: "EIG2ryG3InsGo7mStNgivMrw2/OpHD4UrBJUPwkSWacWJaEztRuqsr/axSiuCTxZ"
+
 
 

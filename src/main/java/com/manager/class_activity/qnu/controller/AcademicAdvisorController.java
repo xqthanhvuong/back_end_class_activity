@@ -63,9 +63,9 @@ public class AcademicAdvisorController {
 
     @GetMapping("/download-template")
     public ResponseEntity<Resource> downloadTemplate() throws IOException {
-        Resource resource = new ClassPathResource("sample csv/academic_advisors_sample.csv");
+        Resource resource = new ClassPathResource("sample csv/academic_advisors_sample.xlsx");
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=advisor_template.csv");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=advisor_template.xlsx");
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }

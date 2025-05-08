@@ -9,6 +9,7 @@ import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.DepartmentMapper;
+import com.manager.class_activity.qnu.repository.ClassRepository;
 import com.manager.class_activity.qnu.repository.DepartmentRepository;
 import com.manager.class_activity.qnu.until.FileUtil;
 import lombok.AccessLevel;
@@ -35,6 +36,7 @@ import java.util.List;
 public class DepartmentService {
     DepartmentRepository departmentRepository;
     DepartmentMapper departmentMapper;
+    private final ClassRepository classRepository;
 
     public void saveDepartments(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
@@ -124,6 +126,7 @@ public class DepartmentService {
         Department department = getDepartmentById(id);
         department.setDeleted(true);
         departmentRepository.save(department);
+        classRepository.deleteByDepartmentId(department.getId());
     }
 
     public Department getDepartmentById(int id) {

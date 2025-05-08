@@ -6,7 +6,9 @@ import com.manager.class_activity.qnu.dto.request.Filter;
 import com.manager.class_activity.qnu.dto.request.FilterClass;
 import com.manager.class_activity.qnu.dto.response.*;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
+import com.manager.class_activity.qnu.service.AccountService;
 import com.manager.class_activity.qnu.service.ClassService;
+import com.manager.class_activity.qnu.until.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequestMapping("/classes")
 public class ClassController {
     ClassService classService;
+    AccountService accountService;
 
     @PreAuthorize(PermissionConstant.CREATE_CLASS)
     @PostMapping("/upload")
@@ -38,6 +41,10 @@ public class ClassController {
     @PreAuthorize(PermissionConstant.VIEW_CLASS)
     @PostMapping("/get-classes")
     public JsonResponse<PagedResponse<ClassResponse>> searchClasses(@RequestBody CustomPageRequest<FilterClass> request) {
+        if(SecurityUtils.isRoleDepartment()){
+            Integer departmentId = accountService.getDepartmentOfAccount().getId();
+            request.getFilter().setDepartmentId(departmentId);
+        }
         PagedResponse<ClassResponse> response = classService.getClasses(request);
         return JsonResponse.success(response);
     }

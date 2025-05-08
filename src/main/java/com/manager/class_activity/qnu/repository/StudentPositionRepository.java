@@ -35,7 +35,7 @@ public interface StudentPositionRepository extends JpaRepository<StudentPosition
             "AND sp.isDeleted = false " +
             "And sp.clazz.isDeleted = false " +
             "and sp.student.isDeleted = false " +
-            "and sp.position = :position ")
+            "and sp.position = :position")
     StudentPosition findStudentPositionByClassIdAndPosition(Integer classId, StudentPositionEnum position);
 
 }

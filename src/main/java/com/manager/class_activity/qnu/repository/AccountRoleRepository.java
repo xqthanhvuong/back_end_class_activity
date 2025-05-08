@@ -16,4 +16,6 @@ public interface AccountRoleRepository extends JpaRepository<AccountRole, Intege
     List<Role> findRoleByUserName(@Param("userName") String userName, @Param("isDeleted") Boolean isDeleted);
 
     AccountRole findByAccountAndRole(Account account, Role role);
+
+
 }

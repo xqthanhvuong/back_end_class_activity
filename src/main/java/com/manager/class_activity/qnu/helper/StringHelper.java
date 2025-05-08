@@ -32,6 +32,17 @@ public class StringHelper {
         // Trả về chuỗi đã xử lý, loại bỏ khoảng trắng ở cuối
         return processedString.toString().trim();
     }
+
+
+    public static String removeAllWhitespace(String input) {
+        if (input == null) {
+            return null;
+        }
+        // \\s là ký tự whitespace; + nghĩa là 1 hoặc nhiều lần
+        return input.replaceAll("\\s+", "");
+    }
+
+
     public static String createPassword(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

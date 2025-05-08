@@ -41,6 +41,7 @@ public class ClassActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void createAllClassActivity(Activity activity) {
         for (Class clazz : classService.getClasses()) {
+            System.out.println("Class: " + clazz.getName());
             StudentPosition position = studentPositionRepository
                     .findStudentPositionByClassIdAndPosition(clazz.getId(), StudentPositionEnum.ClassLeader);
 
