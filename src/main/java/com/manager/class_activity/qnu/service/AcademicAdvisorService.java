@@ -26,6 +26,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,6 +88,7 @@ public class AcademicAdvisorService {
         academicAdvisorRepository.save(advisor);
     }
 
+    @CacheEvict(value = "academicYears", allEntries = true)
     public void update(int id, AcademicAdvisorRequest request) {
         AcademicAdvisor advisor = academicAdvisorRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BadException(ErrorCode.ADVISOR_NOT_FOUND));
@@ -100,6 +103,7 @@ public class AcademicAdvisorService {
         academicAdvisorRepository.save(advisor);
     }
 
+    @CacheEvict(value = "academicYears", allEntries = true)
     public void delete(int id) {
         AcademicAdvisor advisor = academicAdvisorRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BadException(ErrorCode.ADVISOR_NOT_FOUND));
@@ -142,6 +146,7 @@ public class AcademicAdvisorService {
         }
     }
 
+    @CacheEvict(value = "academicYears", allEntries = true)
     public void saveAdvisors(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên
@@ -177,7 +182,9 @@ public class AcademicAdvisorService {
         }
     }
 
+    @Cacheable(value = "academicYears")
     public List<String> getAcademicYears() {
+        System.out.println("LẤY TỪ DB nè!");
         return academicAdvisorRepository.getAcademicYears();
     }
 }

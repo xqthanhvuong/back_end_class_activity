@@ -3,6 +3,7 @@ package com.manager.class_activity.qnu.repository;
 import com.manager.class_activity.qnu.entity.ActivityView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,10 @@ public interface ActivityViewRepository extends JpaRepository<ActivityView, Inte
             "(a.classActivity.clazz.department.id = :departmentId or :departmentId is null) and " +
             "(a.classActivity.clazz.course.id = :courseId or :courseId is null)")
     List<ActivityView> findByFilter(Integer activityId, Integer departmentId, Integer classId, Integer courseId);
+
+    @Query("SELECT COUNT(av) FROM ActivityView av WHERE av.classActivity.id = :classActivityId AND av.isReaded = true")
+    long countReadByClassActivityId(@Param("classActivityId") int classActivityId);
+
+    @Query("SELECT COUNT(av) FROM ActivityView av WHERE av.classActivity.id = :classActivityId")
+    long countAllByClassActivityId(@Param("classActivityId") int classActivityId);
 }

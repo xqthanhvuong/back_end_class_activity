@@ -18,6 +18,7 @@ public class ClassActivityResponse {
     int classId;
     String leader;
     Timestamp activityTime;
+    String activityView;
     Status status;
     Timestamp createdAt;
     Timestamp updatedAt;

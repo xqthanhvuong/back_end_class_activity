@@ -8,6 +8,7 @@ import com.manager.class_activity.qnu.exception.BadException;
 import com.manager.class_activity.qnu.exception.ErrorCode;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.mapper.ClassActivityMapper;
+import com.manager.class_activity.qnu.repository.ActivityViewRepository;
 import com.manager.class_activity.qnu.repository.ClassActivityRepository;
 import com.manager.class_activity.qnu.repository.MinutesOfClassActivitiesRepository;
 import com.manager.class_activity.qnu.repository.StudentPositionRepository;
@@ -35,6 +36,7 @@ public class ClassActivityService {
     ClassActivityMapper classActivityMapper;
     ActivityViewService activityViewService;
     ClassActivityRepository classActivityRepository;
+    ActivityViewRepository activityViewRepository;
     NotificationService notificationService;
     MinutesOfClassActivitiesRepository minutesOfClassActivitiesRepository;
 
@@ -72,7 +74,11 @@ public class ClassActivityService {
         );
         List<ClassActivityResponse> classActivityResponses = new ArrayList<>();
         for(ClassActivity classActivity : classActivityPage.getContent()) {
-            classActivityResponses.add(classActivityMapper.toClassActivityResponse(classActivity));
+            ClassActivityResponse activityResponse = classActivityMapper.toClassActivityResponse(classActivity);
+            activityResponse.setActivityView(activityViewRepository.countReadByClassActivityId(classActivity.getId())+"/"+
+                    activityViewRepository.countAllByClassActivityId(classActivity.getId()));
+            classActivityResponses.add(activityResponse);
+
         }
         return new PagedResponse<>(
                 classActivityResponses,

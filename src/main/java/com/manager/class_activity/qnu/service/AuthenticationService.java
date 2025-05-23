@@ -4,7 +4,8 @@
     import com.manager.class_activity.qnu.dto.request.IntrospectRequest;
     import com.manager.class_activity.qnu.dto.response.AuthenticationResponse;
     import com.manager.class_activity.qnu.dto.response.IntrospectResponse;
-    import com.manager.class_activity.qnu.entity.*;
+    import com.manager.class_activity.qnu.entity.Account;
+    import com.manager.class_activity.qnu.entity.InvalidatedToken;
     import com.manager.class_activity.qnu.exception.BadException;
     import com.manager.class_activity.qnu.exception.ErrorCode;
     import com.manager.class_activity.qnu.repository.AccountRepository;
@@ -24,8 +25,7 @@
     import java.text.ParseException;
     import java.time.LocalDateTime;
     import java.time.ZoneId;
-    import java.util.*;
-    import java.util.stream.Collectors;
+    import java.util.Objects;
 
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -45,18 +45,6 @@
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new BadException(ErrorCode.UNAUTHENTICATED);
             }
-
-//            Set<Role> roleSet = Optional.ofNullable(user.getAccountRoles())
-//                    .orElse(Set.of()) // Trả về một Set rỗng nếu null
-//                    .stream()
-//                    .map(AccountRole::getRole)
-//                    .collect(Collectors.toUnmodifiableSet());
-//            Set<String> permissions = new HashSet<>();
-//            for (Role role: roleSet) {
-//                for (RolePermission roleP: role.getRolePermissions()) {
-//                    permissions.add(roleP.getPermission().getName());
-//                }
-//            }
 
             var token = jwtUtil.generateToken(user.getUsername()
                     , permissionService.getPermissionNamesOfAccount(user.getUsername())
