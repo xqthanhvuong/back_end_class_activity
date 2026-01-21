@@ -2,6 +2,7 @@ package com.manager.class_activity.qnu.constant;
 
 public class EndPoint {
     public static final String[] PUBLIC_ENDPOINTS = {"auth/log-in", "files/{filename}" ,
+            "auth/change-password",
             "academic-advisors/download-template",
             "lecturers/download-template",
             "students/download-template",

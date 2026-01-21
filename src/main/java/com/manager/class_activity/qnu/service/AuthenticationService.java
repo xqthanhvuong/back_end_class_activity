@@ -1,6 +1,7 @@
     package com.manager.class_activity.qnu.service;
 
     import com.manager.class_activity.qnu.dto.request.AuthenticationRequest;
+    import com.manager.class_activity.qnu.dto.request.ChangePasswordRequest;
     import com.manager.class_activity.qnu.dto.request.IntrospectRequest;
     import com.manager.class_activity.qnu.dto.response.AuthenticationResponse;
     import com.manager.class_activity.qnu.dto.response.IntrospectResponse;
@@ -38,21 +39,28 @@
         JwtUtil jwtUtil;
 
 
-        public AuthenticationResponse authenticate(AuthenticationRequest request) {
-            Account user = accountRepository.findByUsernameAndIsDeleted(request.getUsername(), false).orElseThrow(
-                    () -> new BadException(ErrorCode.USER_NOT_EXISTED));
+        public Account validateCredentials(AuthenticationRequest request) {
+            Account user = accountRepository.findByUsernameAndIsDeleted(request.getUsername(), false)
+                    .orElseThrow(() -> new BadException(ErrorCode.USER_NOT_EXISTED));
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new BadException(ErrorCode.UNAUTHENTICATED);
             }
-
-            var token = jwtUtil.generateToken(user.getUsername()
-                    , permissionService.getPermissionNamesOfAccount(user.getUsername())
-                    , user.getType().getName());
-            return AuthenticationResponse.builder()
-                    .token(token)
-                    .build();
+            return user;
         }
+
+        public AuthenticationResponse authenticate(AuthenticationRequest request) {
+            Account user = validateCredentials(request);
+
+            var token = jwtUtil.generateToken(user.getUsername(),
+                    permissionService.getPermissionNamesOfAccount(user.getUsername()),
+                    user.getType().getName());
+
+            return new AuthenticationResponse(token);
+        }
+
+
+
 
         public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
             SignedJWT signedJWT = jwtUtil.parseToken(token);
@@ -100,4 +108,22 @@
             InvalidatedToken invalidatedToken = new InvalidatedToken(jwt, expiryTime);
             invalidatedTokenRepository.save(invalidatedToken);
         }
+
+        public String changePassword(ChangePasswordRequest request) {
+            AuthenticationRequest authRequest = AuthenticationRequest.builder()
+                    .username(request.getUsername())
+                    .password(request.getOldPassword())
+                    .build();
+
+            Account user = validateCredentials(authRequest);
+
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+            String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+            user.setPassword(encodedNewPassword);
+
+            accountRepository.save(user);
+
+            return "Password changed successfully";
+        }
+
     }

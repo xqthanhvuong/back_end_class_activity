@@ -1,6 +1,7 @@
 package com.manager.class_activity.qnu.controller;
 
 import com.manager.class_activity.qnu.dto.request.AuthenticationRequest;
+import com.manager.class_activity.qnu.dto.request.ChangePasswordRequest;
 import com.manager.class_activity.qnu.dto.request.IntrospectRequest;
 import com.manager.class_activity.qnu.dto.response.AuthenticationResponse;
 import com.manager.class_activity.qnu.dto.response.IntrospectResponse;
@@ -37,6 +38,12 @@ public class AuthenticationController {
     public JsonResponse<?> logout() throws ParseException {
         authenticationService.logout();
         return JsonResponse.success(null);
+    }
+
+    @PostMapping("change-password")
+    public JsonResponse<String> changePassword(@RequestBody ChangePasswordRequest request){
+        return JsonResponse.success(authenticationService.changePassword(request));
+
     }
 
 }

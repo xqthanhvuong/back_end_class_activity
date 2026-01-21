@@ -12,6 +12,7 @@ import com.manager.class_activity.qnu.dto.response.JsonResponse;
 import com.manager.class_activity.qnu.dto.response.PagedResponse;
 import com.manager.class_activity.qnu.helper.CustomPageRequest;
 import com.manager.class_activity.qnu.service.ActivityService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class ActivityController {
     ActivityService activityService;
 
     @PreAuthorize(PermissionConstant.CREATE_ACTIVITY)
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/create-activity")
     public JsonResponse<String> createClassActivity(@RequestPart("files") List<MultipartFile> files,
                                                     @RequestPart("metadata") String metadata) throws JsonProcessingException {

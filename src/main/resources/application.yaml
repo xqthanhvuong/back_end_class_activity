@@ -48,6 +48,10 @@ spring:
             trust: smtp.gmail.com
 
 
+mail:
+  email-host: hoangtuquy775@gmail.com
+
+
 logging:
   level:
     root: INFO
